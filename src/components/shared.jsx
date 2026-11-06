@@ -1,5 +1,9 @@
 import { motion } from 'framer-motion'
 
+/** Site base path ("/" locally, "/<repo>/" on GitHub Pages). */
+export const BASE = import.meta.env.BASE_URL
+export const DOCS_URL = `${BASE}docs/`
+
 export const GITHUB_URL = 'https://github.com/HC-bentill/paneful'
 export const RELEASES_URL = `${GITHUB_URL}/releases`
 /** Always the newest release's DMG (the release workflow uploads it under this fixed name). */
@@ -32,7 +36,7 @@ export function SectionHead({ eyebrow, title, sub }) {
 }
 
 export function Logo({ size = 28 }) {
-  return <img src="/logo.svg" width={size} height={size} alt="" className="logo-img" />
+  return <img src={`${BASE}logo.svg`} width={size} height={size} alt="" className="logo-img" />
 }
 
 export function Arrow({ size = 16 }) {

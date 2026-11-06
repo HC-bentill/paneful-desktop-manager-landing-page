@@ -1,9 +1,9 @@
-import { Logo, GITHUB_URL, Reveal } from './shared.jsx'
+import { Logo, GITHUB_URL, Reveal, BASE, DOCS_URL } from './shared.jsx'
 
 const cols = [
-  { title: 'Product', links: [['Features', '#features'], ['How it works', '#how'], ['Tab memory', '#memory'], ['Download', '#download']] },
+  { title: 'Product', links: [['Features', `${BASE}#features`], ['How it works', `${BASE}#how`], ['Tab memory', `${BASE}#memory`], ['Download', `${BASE}#download`]] },
   { title: 'Open source', links: [['GitHub', GITHUB_URL], ['Releases', `${GITHUB_URL}/releases`], ['Issues', `${GITHUB_URL}/issues`], ['MIT License', `${GITHUB_URL}/blob/main/LICENSE`]] },
-  { title: 'Guides', links: [['Shortcuts', '#how'], ['Tab groups', '#features'], ['Auto-tiling', '#features'], ['FAQ', GITHUB_URL]] },
+  { title: 'Docs', links: [['Getting started', `${DOCS_URL}#getting-started`], ['Tab groups', `${DOCS_URL}#tab-groups`], ['Shortcuts', `${DOCS_URL}#shortcuts`], ['FAQ', `${DOCS_URL}#troubleshooting`]] },
 ]
 
 export default function Footer() {
@@ -11,7 +11,7 @@ export default function Footer() {
     <footer className="footer">
       <Reveal className="footer-inner">
         <div className="footer-brand">
-          <a href="#top" className="brand"><Logo size={26} /><span>Paneful</span></a>
+          <a href={BASE} className="brand"><Logo size={26} /><span>Paneful</span></a>
           <p>Snap windows side by side and group any apps into tabs. Built in the open for macOS.</p>
           <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="btn btn--tiny">Star on GitHub</a>
         </div>

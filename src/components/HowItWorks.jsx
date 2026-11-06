@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Reveal, Chevron } from './shared.jsx'
+import { Reveal, Chevron, DOCS_URL } from './shared.jsx'
 
 const steps = [
   { title: 'Install & allow access', body: 'Open Paneful and grant Accessibility access once. It lives quietly in your menu bar.', cards: ['Accessibility ✓', 'Menu bar ready', 'Shortcuts on'] },
@@ -32,7 +32,10 @@ export default function HowItWorks() {
             <h2 className="h2-left">Learn how Paneful works.</h2>
             <p className="muted-sm">From install to perfectly organised in under a minute</p>
             <p>Paneful runs natively and needs no plugins or per-app setup. Here's the whole flow.</p>
-            <a href="#download" className="btn btn--tiny">Start now <Chevron /></a>
+            <span className="how-links">
+              <a href="#download" className="btn btn--tiny">Start now <Chevron /></a>
+              <a href={DOCS_URL} className="btn btn--tiny">Read the docs <Chevron /></a>
+            </span>
           </Reveal>
 
           <div className="iso-wrap">

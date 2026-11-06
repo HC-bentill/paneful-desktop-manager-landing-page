@@ -1,3 +1,4 @@
+import { BASE } from './shared.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 
@@ -15,7 +16,7 @@ function DesktopMock() {
       <div className="mock-screen">
         <div className="mock-menubar">
           <span /> <span /> <span />
-          <div className="mock-menubar-right"><img src="/logo.svg" alt="" /></div>
+          <div className="mock-menubar-right"><img src={`${BASE}logo.svg`} alt="" /></div>
         </div>
         <div className="mock-desk">
           <div className="mock-left">

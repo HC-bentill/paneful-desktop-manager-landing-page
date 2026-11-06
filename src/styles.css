@@ -390,3 +390,5 @@ main, .footer, .nav { position: relative; z-index: 1; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
   html { scroll-behavior: auto; }
 }
+
+.how-links { display: flex; flex-wrap: wrap; gap: 10px; }

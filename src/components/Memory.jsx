@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Reveal, glyphs, Chevron } from './shared.jsx'
+import { Reveal, glyphs, Chevron, BASE } from './shared.jsx'
 
 const floaters = [
   { icon: glyphs.browser, x: '18%', y: '28%', d: 0 },
@@ -20,7 +20,7 @@ export default function Memory() {
               animate={{ boxShadow: ['0 0 0 0 rgba(255,106,92,.55)', '0 0 0 22px rgba(255,106,92,0)'] }}
               transition={{ duration: 2.2, repeat: Infinity }}
             >
-              <img src="/logo.svg" alt="" />
+              <img src={`${BASE}logo.svg`} alt="" />
             </motion.div>
             {floaters.map((f, i) => (
               <motion.span

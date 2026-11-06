@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { Reveal, glyphs, GITHUB_URL, DOWNLOAD_URL } from './shared.jsx'
+import { Reveal, glyphs, GITHUB_URL, DOWNLOAD_URL, BASE } from './shared.jsx'
 
 const orbitApps = [
   { label: 'Browsers', icon: glyphs.browser },
@@ -70,7 +70,7 @@ export default function Hero() {
         >
           <div className="logo3d-float">
             <div className="logo3d-slab" />
-            <img src="/logo.svg" alt="" className="logo3d-face" />
+            <img src={`${BASE}logo.svg`} alt="" className="logo3d-face" />
           </div>
         </motion.div>
       </div>

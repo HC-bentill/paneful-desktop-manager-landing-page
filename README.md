@@ -8,7 +8,21 @@ npm run dev       # http://localhost:5173
 npm run build     # static site in dist/
 ```
 
-## Sections and animations
+## Pages
+- `/`: landing page (`index.html` → `src/main.jsx` → `src/App.jsx`)
+- `/docs/`: documentation with an animated demo of every feature (`docs/index.html` → `src/docs-main.jsx` → `src/docs/DocsApp.jsx`)
+
+### How the docs animations work
+`src/docs/Stage.jsx` renders a tiny Mac desktop (menu bar, windows, tab bar, snap preview, cursor, Dock, keys).
+Each demo in `src/docs/demos.js` is a list of steps, and each step is a full snapshot of the scene
+(window frames in %, cursor, preview, tabs, keys, caption) plus how long to hold it. The stage loops
+through the steps while it's on screen, and framer-motion tweens between them. To document a new
+feature, add a step list to `demos.js` and a `<DocSection demoProps={{ steps }} />` in `DocsApp.jsx`.
+
+Links use `import.meta.env.BASE_URL`, so the site also works under a sub-path such as GitHub Pages
+(`vite build --base=/<repo>/`).
+
+## Landing page sections and animations
 | Section | Animation |
 |---|---|
 | Hero | Floating 3D logo with mouse parallax and an orbit of app chips around it |
