@@ -13,6 +13,7 @@ const sections = [
   { id: 'side-by-side', title: 'Side by side', group: 'Snapping' },
   { id: 'tab-groups', title: 'Make a tab group', group: 'Tab groups' },
   { id: 'manage-tabs', title: 'Manage tabs', group: 'Tab groups' },
+  { id: 'reorder-tabs', title: 'Reorder tabs', group: 'Tab groups', isNew: true },
   { id: 'remembered', title: 'Remembered groups', group: 'Tab groups' },
   { id: 'auto-tiling', title: 'Auto-tiling', group: 'Coming soon', soon: true },
   { id: 'menu-bar', title: 'Menu bar & settings', group: 'Reference' },
@@ -91,6 +92,7 @@ function Sidebar({ active }) {
                 {active === s.id && <motion.span layoutId="side-indicator" className="docs-side-ind" />}
                 {s.title}
                 {s.soon && <span className="soon">Soon</span>}
+                {s.isNew && <span className="soon is-new">New</span>}
               </a>
             ))}
           </div>
@@ -252,12 +254,31 @@ export default function DocsApp() {
             <table className="doc-table">
               <tbody>
                 <tr><td>Switch tab</td><td>Click it, or <Kbd>⌃⌥]</Kbd> / <Kbd>⌃⌥[</Kbd></td></tr>
+                <tr><td>Reorder tabs</td><td>Drag a tab sideways. It stays where you drop it (<a href="#reorder-tabs">see how</a>)</td></tr>
                 <tr><td>Remove a tab</td><td>Hover and click ✕, drag the tab down out of the bar, right-click → Move Out of Group, or <Kbd>⌃⌥W</Kbd></td></tr>
                 <tr><td>Close a tab's window</td><td>Right-click → Close Window. The group still remembers it</td></tr>
                 <tr><td>Minimize the group</td><td><Kbd>⌃⌥M</Kbd>, or right-click a tab → Minimize Group. Restore any of its windows to bring the whole group back</td></tr>
                 <tr><td>Ungroup everything</td><td>Right-click a tab → Ungroup All</td></tr>
               </tbody>
             </table>
+          </DocSection>
+
+          <DocSection
+            id="reorder-tabs"
+            kicker="Tab groups"
+            title="Reorder tabs"
+            intro="Put your tabs in the order you want, just like browser tabs. Drag a tab sideways, and it stays where you drop it."
+            demoProps={{ steps: demo.reorderTabs, windows: ['A', 'B', 'C', 'D'] }}
+            steps={[
+              <>Drag a tab sideways along the tab bar. A hint under the bar says <b>Drag sideways to reorder, or down to pull out</b>.</>,
+              <>The other tabs slide aside to open a gap. When the hint says <b>Release to move the tab here</b>, let go.</>,
+              <>The tab stays in its new place, and the group remembers the order, even after a restart.</>,
+            ]}
+          >
+            <p className="doc-note">
+              To take a tab out of the group instead, drag it well below the bar until the hint says <b>Release to pull out of
+              the group</b>. Moving back toward the bar cancels, so a sideways drag that wobbles a little never pulls a tab out by accident.
+            </p>
           </DocSection>
 
           <DocSection

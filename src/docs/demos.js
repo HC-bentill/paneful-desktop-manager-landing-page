@@ -100,6 +100,36 @@ export const manageTabs = [
   },
 ]
 
+/* 5b — Reorder tabs ------------------------------------------------------ */
+// Four tabs across the bar: slot centres at about x = 19, 37, 55, 73. The bar's middle is at y ≈ 13.5.
+const G7 = { x: 10, y: 18, w: 72, h: 66 }
+const stacked7 = { A: at(G7, { z: 4 }), B: at(G7, { z: 3 }), C: at(G7, { z: 2 }), D: at(G7, { z: 1 }) }
+const g7 = (items, drag) => ({ win: stacked7, tabs: { ...G7, items, active: 'A', drag }, active: 'A' })
+const BAR_Y = 13.5
+const UNDER_BAR = 19.5
+export const reorderTabs = [
+  { d: 1500, ...g7(['A', 'B', 'C', 'D']), cursor: { x: 60, y: 52 }, caption: 'Tabs start in the order you added them' },
+  { d: 800, ...g7(['A', 'B', 'C', 'D']), cursor: { x: 73, y: BAR_Y }, caption: 'Grab a tab…' },
+  {
+    d: 1400, ...g7(['A', 'B', 'C', 'D'], { id: 'D', dx: '-45%' }), cursor: { x: 65, y: BAR_Y, down: true },
+    badge: { x: 65, y: UNDER_BAR, text: 'Drag sideways to reorder, or down to pull out', tone: 'hint' }, caption: '…and drag it sideways',
+  },
+  {
+    d: 1800, ...g7(['A', 'D', 'B', 'C'], { id: 'D' }), cursor: { x: 37, y: BAR_Y, down: true },
+    badge: { x: 37, y: UNDER_BAR, text: 'Release to move the tab here' }, caption: 'The other tabs slide aside to make room',
+  },
+  { d: 2200, ...g7(['A', 'D', 'B', 'C']), cursor: { x: 37, y: BAR_Y }, caption: 'Let go, and it stays there. The group remembers the order' },
+  { d: 800, ...g7(['A', 'D', 'B', 'C']), cursor: { x: 55, y: BAR_Y }, caption: 'To take a tab out, drag it down instead' },
+  {
+    d: 1500, ...g7(['A', 'D', 'B', 'C'], { id: 'B', out: true }), cursor: { x: 56, y: 27, down: true },
+    badge: { x: 56, y: 32, text: 'Release to pull out of the group' }, caption: 'Pull it well below the bar…',
+  },
+  {
+    d: 2400, win: { ...stacked7, B: { x: 40, y: 25, w: 46, h: 52, z: 6 } }, tabs: { ...G7, items: ['A', 'D', 'C'], active: 'A' },
+    active: 'B', cursor: { x: 56, y: 27.5 }, caption: '…and let go. It becomes a separate window again',
+  },
+]
+
 /* 6 — Remembered groups -------------------------------------------------- */
 const G6 = { x: 12, y: 14, w: 64, h: 66 }
 const dHidden = { x: 58, y: 22, w: 32, h: 40, z: 7, o: 0, s: 0.9 }

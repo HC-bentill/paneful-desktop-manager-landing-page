@@ -72,20 +72,25 @@ function TabBar({ t }) {
           style={{ height: `${TAB_H - 1}%` }}
         >
           <AnimatePresence initial={false}>
-            {t.items.map((id) => (
-              <motion.div
-                key={id}
-                layout
-                className={`dtab ${t.active === id ? 'is-active' : ''}`}
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.6 }}
-                transition={{ duration: 0.4, ease }}
-              >
-                <i style={{ color: APPS[id].tint }}>{APPS[id].icon}</i>
-                <span>{APPS[id].title}</span>
-              </motion.div>
-            ))}
+            {t.items.map((id) => {
+              // t.drag = { id, dx, out }: the tab being dragged is lifted, shifted sideways by dx (% of its
+              // width), and dips and fades while it is pulled out of the bar.
+              const drag = t.drag?.id === id ? t.drag : null
+              return (
+                <motion.div
+                  key={id}
+                  layout
+                  className={`dtab ${t.active === id ? 'is-active' : ''} ${drag ? 'is-lifted' : ''}`}
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: drag?.out ? 0.45 : 1, scale: 1, x: drag?.dx ?? '0%', y: drag?.out ? '45%' : '0%' }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.4, ease }}
+                >
+                  <i style={{ color: APPS[id].tint }}>{APPS[id].icon}</i>
+                  <span>{APPS[id].title}</span>
+                </motion.div>
+              )
+            })}
           </AnimatePresence>
         </motion.div>
       )}
@@ -221,10 +226,11 @@ export function Stage({ steps, windows = ['A', 'B'], dock = false, label }) {
             {step.badge && (
               <motion.span
                 key={step.badge.text}
-                className="dbadge"
+                className={`dbadge ${step.badge.tone === 'hint' ? 'is-hint' : ''}`}
                 style={{ left: `${step.badge.x}%`, top: `${step.badge.y}%` }}
-                initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
+                // x: -50% centres the pill on badge.x (framer-motion's transform replaces the CSS one).
+                initial={{ opacity: 0, x: '-50%', y: 8, scale: 0.9 }}
+                animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35 }}
               >
