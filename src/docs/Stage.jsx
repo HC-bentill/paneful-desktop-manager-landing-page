@@ -199,6 +199,28 @@ function Keys({ k }) {
   )
 }
 
+/** Paneful's on-screen confirmation: { title, detail }, a small dark pop-up in the lower part of the screen. */
+function Toast({ t }) {
+  return (
+    <AnimatePresence mode="wait">
+      {t && (
+        <motion.div
+          key={`${t.title}|${t.detail}`}
+          className="dtoast"
+          // x: -50% centres it (framer-motion's transform replaces the CSS one).
+          initial={{ opacity: 0, x: '-50%', y: 10, scale: 0.94 }}
+          animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
+          exit={{ opacity: 0, x: '-50%', scale: 0.97 }}
+          transition={{ duration: 0.3, ease }}
+        >
+          <b>{t.title}</b>
+          {t.detail && <span>{t.detail}</span>}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 function Dock({ d }) {
   const icons = ['A', 'B', 'C', 'D', 'E']
   return (
@@ -286,6 +308,7 @@ export function Stage({ steps, windows = ['A', 'B'], dock = false, label }) {
             )}
           </AnimatePresence>
           {dock && <Dock d={step.dock} />}
+          <Toast t={step.toast} />
           <Cursor c={step.cursor} />
         </div>
         <MenuDropdown m={step.menu} />

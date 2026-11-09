@@ -20,6 +20,7 @@ const sections = [
   { id: 'auto-tab-new', title: 'Auto-tab new windows', group: 'Tab groups', isNew: true },
   { id: 'auto-tiling', title: 'Auto-tiling', group: 'Auto-tiling', isNew: true },
   { id: 'arrange-tiles', title: 'Arrange tiles', group: 'Auto-tiling', isNew: true },
+  { id: 'saved-layouts', title: 'Saved layouts', group: 'Layouts', isNew: true },
   { id: 'menu-bar', title: 'Menu bar & settings', group: 'Reference' },
   { id: 'shortcuts', title: 'Keyboard shortcuts', group: 'Reference' },
   { id: 'troubleshooting', title: 'Troubleshooting & FAQ', group: 'Reference' },
@@ -38,6 +39,9 @@ const shortcuts = [
   ['Auto-tiling', [
     ['⌃⌥F', 'Float the focused window, or tile it again'],
   ]],
+  ['Saved layouts', [
+    ['⌃⌥⇧1…9', 'Save the current layout'], ['⌃⌥1…9', 'Restore a saved layout'],
+  ]],
 ]
 
 const faqs = [
@@ -49,6 +53,7 @@ const faqs = [
   ['A window doesn’t fill its tile exactly', 'Some apps enforce a minimum size or animate their own resizing. Paneful gets as close as the app allows.'],
   ['The red button doesn’t close my tab’s window', <>In a tab group, the red button sends the window to the Dock instead. To really close it, <b>⌥-click</b> the red button, or right-click its tab → <b>Close Window</b>. ⌘W still closes it as usual. To get the normal red button back, switch off <b>Close Button Minimizes Tabs</b> in the menu bar.</>],
   ['Auto-tiling or auto-tab caught a window I want to keep floating', <>Press <b>⌃⌥F</b> (<b>Float Focused Window</b>) to take a tiled window out of the layout, or <b>⌃⌥W</b> to move a tab out of its group. To keep an app's new windows out of both auto-tiling and auto-tab, bring that app to the front and choose <b>Auto-tiling → Always Float <i>App name</i></b> in the menu bar.</>],
+  ['A window didn’t come back with my layout', <>Paneful only moves windows that are open on the current desktop. It doesn’t launch apps, so open the app and press the shortcut again. When an app has several windows, Paneful tells them apart by title, so a window whose title has changed may swap places with a sibling. Put them where you want them and save the layout again under the same number.</>],
   ['Can I tab or tile full-screen windows?', 'No. Windows in macOS full-screen mode (the green button) live in their own Space and can’t be moved by any window manager. Exit full screen first.'],
   ['Where are my remembered groups stored?', <>In ~/Library/Application Support/Paneful/groups.json. Use <b>Remembered Groups</b> in the menu bar to forget one or all of them.</>],
   ['Why isn’t Paneful on the Mac App Store?', 'Window managers need to control other apps’ windows, which the App Store sandbox doesn’t allow. Paneful is distributed through GitHub instead, and it’s free and open source.'],
@@ -133,8 +138,9 @@ function DocSection({ id, kicker, title, intro, children, steps, demoProps, soon
   )
 }
 
+// One keycap per character, except a number range such as 1…9, which gets a single keycap.
 function Kbd({ children }) {
-  return <span className="kbd-group">{[...children].map((c, i) => <kbd key={i}>{c}</kbd>)}</span>
+  return <span className="kbd-group">{children.match(/\d…\d|./gu).map((c, i) => <kbd key={i}>{c}</kbd>)}</span>
 }
 
 function Faq() {
@@ -410,6 +416,34 @@ export default function DocsApp() {
           </DocSection>
 
           <DocSection
+            id="saved-layouts"
+            kicker="Layouts"
+            title="Saved layouts"
+            intro="Store the current arrangement of your windows under a number from 1 to 9, and bring it back with a shortcut."
+            demoProps={{ steps: demo.savedLayouts, windows: ['A', 'C', 'D'], dock: true }}
+            steps={[
+              <>Arrange your windows, then press <Kbd>⌃⌥⇧1</Kbd> (Control + Option + Shift + 1). Paneful saves every window on the current desktop, on all displays: where each one sits, which one is in front, and your tab groups with their tabs and visible tab. A pop-up says <b>Layout 1 saved</b>.</>,
+              <>Work as usual. Move windows, minimize them, pull tabs out of groups.</>,
+              <>Press <Kbd>⌃⌥1</Kbd>. Everything goes back where it was, and a pop-up says <b>Layout 1 restored</b>.</>,
+            ]}
+          >
+            <ul className="doc-list">
+              <li><b>Paneful finds each saved window among the open ones:</b> same app, same or similar title. If no title matches, it takes that app's window nearest to where the saved one was.</li>
+              <li><b>It undoes what changed.</b> Minimized windows and hidden apps come back, tab groups are put back together (windows you grouped since are split apart), every window moves into place, and the front-to-back order is restored.</li>
+              <li><b>Windows that aren't open are skipped.</b> Paneful doesn't launch apps. The pop-up says what's missing, for example <b>4 of 5 windows · not open: Mail</b>.</li>
+              <li><b>Windows that aren't part of the layout</b> stay where they are.</li>
+              <li><b>Saving under a number you've used replaces that layout.</b> The pop-up says <b>Layout 1 replaced</b>.</li>
+              <li><b>A display is gone or changed size?</b> Its windows keep their relative place and size on the closest display.</li>
+              <li><b>With auto-tiling on</b>, restoring a layout floats the current windows, because the layout replaces the tiling. New windows are still tiled.</li>
+            </ul>
+            <p className="doc-note">
+              Layouts are kept across restarts, in ~/Library/Application Support/Paneful/layouts.json. Restore, save or forget them
+              under <b>Saved Layouts</b> in the menu bar, which lists each layout with its apps, for example <b>Layout 1: Browser, Code
+              editor, Mail</b>.
+            </p>
+          </DocSection>
+
+          <DocSection
             id="menu-bar"
             kicker="Reference"
             title="Menu bar & settings"
@@ -424,13 +458,14 @@ export default function DocsApp() {
                 <tr><td>Close Button Minimizes Tabs</td><td>In a tab group, the red button sends a window to the Dock instead of closing it. On by default (<a href="#close-button">more</a>)</td></tr>
                 <tr><td>Auto-tile New Windows</td><td>Arrange new windows into tiles. Off by default (<a href="#auto-tiling">more</a>)</td></tr>
                 <tr><td>Auto-tab New Windows</td><td>Tab each new window with the window you were using. Off by default (<a href="#auto-tab-new">more</a>)</td></tr>
+                <tr><td>Saved Layouts ▸</td><td>Restore a saved layout, save the current one under a number, or forget one (<a href="#saved-layouts">more</a>)</td></tr>
                 <tr><td>Auto-tiling ▸</td><td>Float or tile the focused window (<Kbd>⌃⌥F</Kbd>), always float the app in front (its new windows are never tiled or auto-tabbed), or float all windows</td></tr>
                 <tr><td>Launch at Login</td><td>Start Paneful when you log in</td></tr>
               </tbody>
             </table>
           </DocSection>
 
-          <DocSection id="shortcuts" kicker="Reference" title="Keyboard shortcuts" intro="All shortcuts use Control (⌃) + Option (⌥).">
+          <DocSection id="shortcuts" kicker="Reference" title="Keyboard shortcuts" intro="All shortcuts use Control (⌃) + Option (⌥). Saving a layout adds Shift (⇧).">
             <div className="shortcut-cols">
               {shortcuts.map(([group, rows]) => (
                 <div key={group} className="shortcut-card">

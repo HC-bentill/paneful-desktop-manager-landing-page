@@ -6,7 +6,7 @@ const features = [
   { title: 'Tabs across any apps', body: 'Put your browser, chat and editor in one frame with a floating tab bar. Click a tab to switch, or hold a file over it to drop it in.' },
   { title: 'Remembered groups', body: 'Reopen an app and its window jumps straight back into its tab group. No drag and drop.' },
   { title: 'Auto-tiling (optional)', body: 'Switch it on and new windows split the screen for you. Closing one hands its space back. Off by default.' },
-  { title: 'Keyboard first', body: 'Control-Option shortcuts for every layout, tab switch and ungroup.' },
+  { title: 'Keyboard first', body: 'Control-Option shortcuts for every layout, tab switch and ungroup. Saved layouts put your whole arrangement back with one shortcut.' },
   { title: 'Open source, MIT', body: 'Native Swift with no telemetry and no account. Read the code, fork it, help improve it.' },
 ]
 

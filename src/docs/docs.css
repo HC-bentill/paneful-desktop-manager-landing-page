@@ -73,14 +73,14 @@
 
 kbd, .dkeys kbd {
   display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 7px;
-  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text);
+  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap;
   border-radius: 7px; background: linear-gradient(180deg, #2a2640, #1a1730);
   border: 1px solid var(--line-2); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
 }
 .kbd-group { display: inline-flex; gap: 4px; vertical-align: middle; }
 .kbd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 24px; margin-top: 24px; }
 .kbd-row { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--muted); padding: 6px 0; }
-.kbd-row .kbd-group { min-width: 96px; }
+.kbd-row .kbd-group { min-width: 96px; flex: none; }
 .shortcut-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 24px; }
 .shortcut-card { padding: 22px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); }
 .shortcut-card h3 { font-size: 16px; margin-bottom: 10px; }
@@ -235,6 +235,15 @@ kbd, .dkeys kbd {
   background: rgba(10, 8, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 1cqw 2.5cqw -0.6cqw rgba(0, 0, 0, 0.6);
 }
+/* Paneful's confirmation pop-up (saved layouts): a bold line plus a smaller detail line, above the Dock. */
+.dtoast {
+  position: absolute; left: 50%; bottom: 13%; z-index: 43; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.3cqw; white-space: nowrap; text-align: center;
+  padding: 1.1cqw 2.2cqw; border-radius: 1.4cqw; background: rgba(10, 8, 22, 0.82); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: 0 1.4cqw 3cqw -0.8cqw rgba(0, 0, 0, 0.7);
+}
+.dtoast b { font-size: clamp(8px, 1.6cqw, 14px); font-weight: 700; color: #fff; }
+.dtoast span { font-size: clamp(7px, 1.2cqw, 11px); color: rgba(255, 255, 255, 0.65); }
 .ddock {
   position: absolute; left: 35%; width: 30%; bottom: 1.5%; height: 8%; z-index: 25;
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5cqw; padding: 0.6cqw;

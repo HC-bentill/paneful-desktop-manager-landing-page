@@ -233,25 +233,26 @@ const menuItems = ({ launch = false, tile = false, tab = false } = {}) => [
   '-',
   { label: 'Snap Window', key: '▸' },
   { label: 'Side by Side with Previous', key: '⌃⌥S' },
+  { label: 'Saved Layouts', key: '▸' }, // 4
   '-',
   { label: 'Tab with Previous Window', key: '⌃⌥T' },
   { label: 'Minimize Group', key: '⌃⌥M' },
-  { label: 'Remembered Groups', key: '▸' }, // 7
+  { label: 'Remembered Groups', key: '▸' }, // 8
   '-',
-  { label: 'Auto-tile New Windows', on: tile }, // 9
-  { label: 'Auto-tab New Windows', on: tab }, // 10
-  { label: 'Auto-tiling', key: '▸' }, // 11
+  { label: 'Auto-tile New Windows', on: tile }, // 10
+  { label: 'Auto-tab New Windows', on: tab }, // 11
+  { label: 'Auto-tiling', key: '▸' }, // 12
   '-',
   { label: 'Drag to Screen Edge to Snap', on: true },
   { label: 'Drag onto Title Bar to Tab', on: true },
   { label: 'Auto-tab Remembered Windows', on: true },
-  { label: 'Close Button Minimizes Tabs', on: true }, // 16
-  { label: 'Launch at Login', on: launch }, // 17
+  { label: 'Close Button Minimizes Tabs', on: true }, // 17
+  { label: 'Launch at Login', on: launch }, // 18
   '-',
   { label: 'Quit Paneful' },
 ]
 // Cursor height (desktop %) of a menu row, by index in menuItems.
-const MENU_Y = { 7: 31, 9: 37.5, 10: 42, 11: 46.5, 16: 66.5, 17: 71 }
+const MENU_Y = { 4: 20, 8: 35.5, 10: 42, 11: 46.5, 12: 51, 17: 71, 18: 75.5 }
 const STATUS = { x: 95.2, y: -3 }
 
 /* 8 — Auto-tiling -------------------------------------------------------- */
@@ -278,8 +279,8 @@ export const autoTiling = [
   { d: 1300, ...tiled(T_FULL), cursor: { x: 62, y: 52 }, caption: 'A tab group fills the screen' },
   { d: 700, ...tiled(T_FULL), cursor: STATUS, caption: 'Switch on Auto-tile New Windows in the menu bar' },
   { d: 1000, ...tiled(T_FULL), cursor: { ...STATUS, down: true, fast: true }, menu: { items: menuItems() }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
-  { d: 800, ...tiled(T_FULL), cursor: { x: 80, y: MENU_Y[9] }, menu: { items: menuItems(), hover: 9 }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
-  { d: 1100, ...tiled(T_FULL), cursor: { x: 80, y: MENU_Y[9], down: true, fast: true }, menu: { items: menuItems({ tile: true }), hover: 9 }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
+  { d: 800, ...tiled(T_FULL), cursor: { x: 80, y: MENU_Y[10] }, menu: { items: menuItems(), hover: 10 }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
+  { d: 1100, ...tiled(T_FULL), cursor: { x: 80, y: MENU_Y[10], down: true, fast: true }, menu: { items: menuItems({ tile: true }), hover: 10 }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
   { d: 900, ...tiled(T_FULL), cursor: { x: DOCK_X.E - 0.5, y: 93 }, caption: 'Now open Finder from the Dock…' },
   {
     d: 1700, ...tiled(T_L, { E: at(T_R, { z: 3, ph: true }) }, { active: 'E' }), dock: { running: ['A', 'B', 'E'], bounce: 'E' },
@@ -332,15 +333,48 @@ export const arrangeTiles = [
   { d: 2200, win: { ...resized, B: at(W_BR, { z: 3 }) }, active: 'B', cursor: { x: 83.5, y: 65.5 }, caption: '…and let go. It slides back into its tile' },
 ]
 
+/* 9b — Saved layouts ----------------------------------------------------- */
+// Code editor on the left, a Browser + Mail tab group on the right (frames stop above the Dock, like the tiles).
+const SG = inTile(T_R)
+const arranged = {
+  win: { C: at(T_L, { z: 2 }), A: at(SG, { z: 3 }), D: at(SG, { z: 1 }) },
+  tabs: { ...SG, items: ['A', 'D'], active: 'A' },
+  active: 'A',
+  dock: { running: ['A', 'C', 'D'] },
+}
+// Later: the editor moved, Mail pulled out of the group (so the group's bar goes), then Browser minimized.
+const moved = { C: { x: 24, y: 12, w: 46, h: 56, z: 4 }, A: at(SG, { z: 2 }), D: { x: 5, y: 38, w: 38, h: 46, z: 5 } }
+const minimized = { ...moved, A: intoDock(SG, 'A') }
+const messy = (win, extra) => ({ win, active: 'D', dock: { running: ['A', 'C', 'D'] }, ...extra })
+export const savedLayouts = [
+  { d: 1600, ...arranged, caption: 'Arrange your windows the way you like them' },
+  {
+    d: 2600, ...arranged, keys: ['⌃', '⌥', '⇧', '1'], toast: { title: 'Layout 1 saved', detail: '3 windows · ⌃⌥1 brings them back' },
+    caption: 'Press ⌃⌥⇧1 to save them as layout 1',
+  },
+  { d: 1800, ...messy(moved), caption: 'Later, windows get moved around and pulled out of groups…' },
+  { d: 1400, ...messy(minimized), caption: '…or minimized' },
+  { d: 1000, ...messy(minimized, { keys: ['⌃', '⌥', '1'] }), caption: 'Press ⌃⌥1…' },
+  {
+    d: 2800, ...arranged, keys: ['⌃', '⌥', '1'], toast: { title: 'Layout 1 restored', detail: '3 windows' },
+    caption: '…and everything glides back into place, tab group included',
+  },
+  {
+    d: 2800, ...arranged, keys: ['⌃', '⌥', '3'], toast: { title: 'No layout saved as 3', detail: 'Arrange your windows, then press ⌃⌥⇧3 to save them' },
+    caption: 'A number with nothing saved tells you how to save one',
+  },
+]
+
 /* 10 — Menu bar ---------------------------------------------------------- */
 const mWin = { A: { x: 6, y: 18, w: 46, h: 62, z: 1 } }
 export const menuBar = [
   { d: 1200, win: mWin, cursor: { x: 70, y: 40 }, caption: 'Paneful lives in your menu bar' },
   { d: 700, win: mWin, cursor: STATUS, caption: 'Paneful lives in your menu bar' },
   { d: 1600, win: mWin, cursor: { ...STATUS, down: true, fast: true }, menu: { items: menuItems() }, caption: 'Every action and setting in one place' },
-  { d: 1500, win: mWin, cursor: { x: 80, y: MENU_Y[17] }, menu: { items: menuItems(), hover: 17 }, caption: 'Turn features on or off' },
-  { d: 1500, win: mWin, cursor: { x: 80, y: MENU_Y[17], down: true, fast: true }, menu: { items: menuItems({ launch: true }), hover: 17 }, caption: 'Turn on Launch at Login' },
-  { d: 1600, win: mWin, cursor: { x: 80, y: MENU_Y[11] }, menu: { items: menuItems({ launch: true }), hover: 11 }, caption: 'Auto-tiling options have their own submenu' },
-  { d: 1800, win: mWin, cursor: { x: 80, y: MENU_Y[7] }, menu: { items: menuItems({ launch: true }), hover: 7 }, caption: 'Review or forget remembered groups' },
+  { d: 1500, win: mWin, cursor: { x: 80, y: MENU_Y[18] }, menu: { items: menuItems(), hover: 18 }, caption: 'Turn features on or off' },
+  { d: 1500, win: mWin, cursor: { x: 80, y: MENU_Y[18], down: true, fast: true }, menu: { items: menuItems({ launch: true }), hover: 18 }, caption: 'Turn on Launch at Login' },
+  { d: 1600, win: mWin, cursor: { x: 80, y: MENU_Y[12] }, menu: { items: menuItems({ launch: true }), hover: 12 }, caption: 'Auto-tiling options have their own submenu' },
+  { d: 1800, win: mWin, cursor: { x: 80, y: MENU_Y[8] }, menu: { items: menuItems({ launch: true }), hover: 8 }, caption: 'Review or forget remembered groups' },
+  { d: 1800, win: mWin, cursor: { x: 80, y: MENU_Y[4] }, menu: { items: menuItems({ launch: true }), hover: 4 }, caption: 'Restore, save or forget saved layouts' },
   { d: 1200, win: mWin, cursor: { x: 70, y: 40 }, caption: 'Paneful lives in your menu bar' },
 ]

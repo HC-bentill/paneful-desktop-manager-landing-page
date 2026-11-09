@@ -17,7 +17,8 @@ npm run build     # static site in dist/
 Each demo in `src/docs/demos.js` is a list of steps, and each step is a full snapshot of the scene
 (window frames in %, cursor, preview, tabs, keys, caption) plus how long to hold it. Optional extras: `ph: true` on a
 frame draws it as an auto-tiling placeholder (dark tile with the app's icon and name), `hl: true` highlights it as a
-drop target, `tabs.hover` outlines a tab, and `file: { x, y, name, lifted }` draws a dragged file. The stage loops
+drop target, `tabs.hover` outlines a tab, `file: { x, y, name, lifted }` draws a dragged file, and
+`toast: { title, detail }` shows Paneful's confirmation pop-up (as for saved layouts). The stage loops
 through the steps while it's on screen, and framer-motion tweens between them. To document a new
 feature, add a step list to `demos.js` and a `<DocSection demoProps={{ steps }} />` in `DocsApp.jsx`.
 
