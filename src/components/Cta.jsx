@@ -25,7 +25,8 @@ export default function Cta() {
         </Reveal>
         <Reveal delay={0.19} as="p" className="muted-sm install-note">
           Open the DMG and drag Paneful to Applications. On first launch, if macOS can't verify the developer, go to
-          System Settings → Privacy &amp; Security and click <strong>Open Anyway</strong>, then allow Accessibility.{' '}
+          System Settings → Privacy &amp; Security and click <strong>Open Anyway</strong>, then allow Accessibility. After an
+          update, if macOS asks again, just switch Paneful back on.{' '}
           <a href={RELEASES_URL} target="_blank" rel="noreferrer">All releases</a>
         </Reveal>
         <Reveal delay={0.22}>

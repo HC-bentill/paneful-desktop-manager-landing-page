@@ -63,6 +63,7 @@
 .doc-table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 14px; }
 .doc-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--muted); }
 .doc-table td:first-child { color: var(--text); font-weight: 600; width: 34%; }
+.doc-table td b { color: var(--text); }
 .callout {
   margin-top: 22px; padding: 16px 18px; border-radius: 14px; font-size: 14px; color: var(--muted);
   background: linear-gradient(135deg, rgba(255, 138, 76, 0.1), rgba(91, 61, 255, 0.1));
@@ -94,6 +95,7 @@ kbd, .dkeys kbd {
 }
 .faq-plus { color: var(--coral); font-size: 20px; line-height: 1; }
 .faq-a p { padding: 0 18px 18px; color: var(--muted); font-size: 14px; }
+.faq-a b { color: var(--text); }
 
 @media (max-width: 900px) {
   .docs-layout { grid-template-columns: 1fr; gap: 0; }
@@ -154,6 +156,26 @@ kbd, .dkeys kbd {
 .dwin-hero { height: 30%; min-height: 10px; border-radius: 0.9cqw; background: linear-gradient(135deg, color-mix(in srgb, var(--tint) 35%, white), var(--tint)); opacity: 0.85; }
 .dwin-line { height: 0.9cqw; border-radius: 1cqw; background: #dcd9e8; }
 .dwin-line.w80 { width: 80%; } .dwin-line.w60 { width: 60%; } .dwin-line.w70 { width: 70%; }
+/* Drop target: the app under a drag highlights itself. */
+.dwin::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  box-shadow: inset 0 0 0 0.3cqw rgba(255, 106, 92, 0.85); background: rgba(255, 106, 92, 0.05);
+  transition: opacity 0.3s;
+}
+.dwin.is-drop::after { opacity: 1; }
+/* Auto-tiling placeholder: a dark tile with the app's icon and name, holding the slot until the window arrives. */
+.dwin-ph {
+  position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.2cqw; background: linear-gradient(160deg, #24203a, #15121f); pointer-events: none;
+}
+.dwin-ph i {
+  width: 6cqw; height: 6cqw; padding: 1.2cqw; border-radius: 1.4cqw; display: grid; place-items: center;
+  color: var(--tint); background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: ph-pulse 1.6s ease-in-out infinite;
+}
+.dwin-ph i svg { width: 100%; height: 100%; }
+.dwin-ph span { font-size: clamp(8px, 1.5cqw, 13px); font-weight: 600; color: rgba(255, 255, 255, 0.75); }
+@keyframes ph-pulse { 50% { opacity: 0.55; } }
 
 .dtabbar {
   position: absolute; z-index: 20; display: flex; gap: 0.5cqw; padding: 0.45cqw;
@@ -168,6 +190,7 @@ kbd, .dkeys kbd {
 .dtab i { width: 1.6cqw; height: 1.6cqw; flex: none; display: inline-flex; }
 .dtab i svg { width: 100%; height: 100%; }
 .dtab.is-active { background: rgba(255, 255, 255, 0.2); color: #fff; font-weight: 600; }
+.dtab.is-hover { outline: 1.5px solid rgba(255, 106, 92, 0.9); outline-offset: -1.5px; color: #fff; }
 .dtab.is-lifted {
   position: relative; z-index: 2; color: #fff; background: rgba(72, 66, 112, 0.96);
   outline: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 0.8cqw 1.6cqw -0.4cqw rgba(0, 0, 0, 0.75);
@@ -182,6 +205,18 @@ kbd, .dkeys kbd {
   font-size: clamp(8px, 1.5cqw, 13px); font-weight: 600; color: #fff; padding: 0.6cqw 1.4cqw;
   border-radius: 999px; background: rgba(0, 0, 0, 0.45);
 }
+.dfile {
+  position: absolute; z-index: 38; display: flex; flex-direction: column; align-items: center; gap: 0.4cqw;
+  pointer-events: none;
+}
+.dfile i { width: 4.2cqw; height: 4.2cqw; display: inline-flex; color: #8b86a6; filter: drop-shadow(0 0.3cqw 0.5cqw rgba(0, 0, 0, 0.35)); }
+.dfile i svg { width: 100%; height: 100%; }
+.dfile span {
+  font-size: clamp(7px, 1.2cqw, 11px); font-weight: 600; color: #3a3650; white-space: nowrap;
+  padding: 0.1cqw 0.7cqw; border-radius: 0.6cqw;
+}
+.dfile.is-lifted i { filter: drop-shadow(0 1cqw 1.4cqw rgba(0, 0, 0, 0.55)); }
+.dfile.is-lifted span { color: #fff; background: rgba(10, 8, 22, 0.7); }
 .dcursor { position: absolute; z-index: 40; width: 2.6cqw; height: 2.6cqw; min-width: 14px; min-height: 14px; margin: -2px 0 0 -2px; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5)); }
 .dcursor-ring {
   position: absolute; left: -60%; top: -60%; width: 120%; height: 120%; border-radius: 50%;
@@ -218,7 +253,7 @@ kbd, .dkeys kbd {
 }
 .dmenu hr { border: 0; border-top: 1px solid rgba(255, 255, 255, 0.12); margin: 0.5cqw 0.6cqw; }
 .dmenu-item {
-  display: flex; align-items: center; gap: 0.6cqw; padding: 0.45cqw 0.8cqw; border-radius: 0.6cqw;
+  display: flex; align-items: center; gap: 0.6cqw; padding: 0.45cqw 0.8cqw; border-radius: 0.6cqw; line-height: 1.35;
   font-size: clamp(7px, 1.35cqw, 12px); color: rgba(255, 255, 255, 0.88);
 }
 .dmenu-item.is-header { color: rgba(255, 255, 255, 0.5); font-weight: 600; }
@@ -226,6 +261,11 @@ kbd, .dkeys kbd {
 .dmenu-check { width: 1.6cqw; text-align: center; }
 .dmenu-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dmenu-key { opacity: 0.6; }
+/* Narrow stages: the 7px minimum font would make rows relatively taller and push the menu off the bottom,
+   so shrink the row padding to keep every row at the same share of the stage as on wide screens. */
+@container (max-width: 519px) {
+  .dmenu-item { line-height: 1.25; padding-block: max(0px, calc(1.36cqw - 4.375px)); }
+}
 
 .stage-caption {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;

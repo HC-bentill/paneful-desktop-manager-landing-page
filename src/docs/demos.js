@@ -115,18 +115,85 @@ export const reorderTabs = [
     badge: { x: 65, y: UNDER_BAR, text: 'Drag sideways to reorder, or down to pull out', tone: 'hint' }, caption: '…and drag it sideways',
   },
   {
-    d: 1800, ...g7(['A', 'D', 'B', 'C'], { id: 'D' }), cursor: { x: 37, y: BAR_Y, down: true },
-    badge: { x: 37, y: UNDER_BAR, text: 'Release to move the tab here' }, caption: 'The other tabs slide aside to make room',
+    d: 1800, ...g7(['D', 'A', 'B', 'C'], { id: 'D' }), cursor: { x: 19, y: BAR_Y, down: true },
+    badge: { x: 21, y: UNDER_BAR, text: 'Release to move the tab here' }, caption: 'Take it all the way to the first spot',
   },
-  { d: 2200, ...g7(['A', 'D', 'B', 'C']), cursor: { x: 37, y: BAR_Y }, caption: 'Let go, and it stays there. The group remembers the order' },
-  { d: 800, ...g7(['A', 'D', 'B', 'C']), cursor: { x: 55, y: BAR_Y }, caption: 'To take a tab out, drag it down instead' },
+  { d: 2200, ...g7(['D', 'A', 'B', 'C']), cursor: { x: 19, y: BAR_Y }, caption: 'Let go, and it stays there. The group remembers the order' },
+  { d: 800, ...g7(['D', 'A', 'B', 'C']), cursor: { x: 55, y: BAR_Y }, caption: 'To take a tab out, drag it down instead' },
   {
-    d: 1500, ...g7(['A', 'D', 'B', 'C'], { id: 'B', out: true }), cursor: { x: 56, y: 27, down: true },
+    d: 1500, ...g7(['D', 'A', 'B', 'C'], { id: 'B', out: true }), cursor: { x: 56, y: 27, down: true },
     badge: { x: 56, y: 32, text: 'Release to pull out of the group' }, caption: 'Pull it well below the bar…',
   },
   {
-    d: 2400, win: { ...stacked7, B: { x: 40, y: 25, w: 46, h: 52, z: 6 } }, tabs: { ...G7, items: ['A', 'D', 'C'], active: 'A' },
+    d: 2400, win: { ...stacked7, B: { x: 40, y: 25, w: 46, h: 52, z: 6 } }, tabs: { ...G7, items: ['D', 'A', 'C'], active: 'A' },
     active: 'B', cursor: { x: 56, y: 27.5 }, caption: '…and let go. It becomes a separate window again',
+  },
+]
+
+/* 5c — Close button minimizes tabs -------------------------------------- */
+// The red traffic light sits about (1.9, 3.6) from a window's top-left corner.
+const RED = (f) => ({ x: f.x + 1.9, y: f.y + 3.6 })
+// Dock icon centres (A … E) and a frame that shrinks a window into its icon.
+const DOCK_X = { A: 38, B: 44, C: 50, D: 56, E: 62 }
+const intoDock = (f, id) => ({ ...f, x: DOCK_X[id] - 2, y: 92, w: 4, h: 3, o: 0 })
+const G8 = { x: 18, y: 14, w: 64, h: 66 }
+const g8 = (items, active, extra = {}) => ({
+  win: { A: at(G8, { z: active === 'A' ? 3 : 1 }), B: at(G8, { z: active === 'B' ? 3 : 1 }), C: at(G8, { z: active === 'C' ? 3 : 1 }), ...extra },
+  tabs: { ...G8, items, active },
+  active,
+  dock: { running: ['A', 'B', 'C'] },
+})
+export const closeButton = [
+  { d: 1500, ...g8(['A', 'B', 'C'], 'A'), cursor: { x: 62, y: 56 }, caption: 'A tab group with three apps' },
+  { d: 900, ...g8(['A', 'B', 'C'], 'A'), cursor: RED(G8), caption: "Click the red button on the active tab's window…" },
+  {
+    d: 2000, ...g8(['B', 'C'], 'B', { A: intoDock(G8, 'A') }), cursor: { ...RED(G8), down: true, fast: true },
+    caption: '…and it goes to the Dock. The next tab takes its place',
+  },
+  { d: 900, ...g8(['B', 'C'], 'B', { A: intoDock(G8, 'A') }), cursor: { x: DOCK_X.A - 0.5, y: 93 }, caption: 'Click it in the Dock…' },
+  {
+    d: 2100, ...g8(['A', 'B', 'C'], 'A'), dock: { running: ['A', 'B', 'C'], bounce: 'A' },
+    cursor: { x: DOCK_X.A - 0.5, y: 93, down: true, fast: true }, caption: '…and it comes back as the active tab',
+  },
+  { d: 1100, ...g8(['A', 'B', 'C'], 'A'), cursor: RED(G8), keys: ['⌥'], caption: 'To really close it, hold ⌥…' },
+  {
+    d: 2400, ...g8(['B', 'C'], 'B', { A: at(G8, { z: 3, o: 0, s: 0.94 }) }), cursor: { ...RED(G8), down: true, fast: true },
+    keys: ['⌥'], caption: '…and click the red button. The window closes',
+  },
+]
+
+/* 5d — Drop files onto tabs --------------------------------------------- */
+// Two tabs across the bar: Browser centred at x ≈ 17, Mail at x ≈ 45. The bar's middle is at y ≈ 9.5.
+const G9 = { x: 3, y: 14, w: 56, h: 76 }
+const F9 = { x: 63, y: 26, w: 34, h: 50, z: 2 }
+const MAIL_TAB = { x: 45, y: 9.5 }
+const IN_MAIL = { x: 31, y: 56 }
+const g9 = (active, extra = {}) => ({
+  win: { A: at(G9, { z: active === 'A' ? 3 : 1 }), D: at(G9, { z: active === 'D' ? 3 : 1 }), E: F9, ...extra },
+  tabs: { ...G9, items: ['A', 'D'], active },
+})
+const file9 = (pos, extra) => ({ ...pos, name: 'Report.pdf', key: 'src', ...extra })
+export const dropOnTabs = [
+  { d: 1500, ...g9('A'), active: 'E', file: file9({ x: 80, y: 63 }), cursor: { x: 90, y: 84 }, caption: 'A file in Finder, and a tab group with Browser and Mail' },
+  { d: 800, ...g9('A'), active: 'E', file: file9({ x: 80, y: 63 }), cursor: { x: 80.5, y: 61.5 }, caption: 'Grab the file…' },
+  { d: 500, ...g9('A'), active: 'E', file: file9({ x: 80, y: 63 }, { lifted: true, s: 1.08 }), cursor: { x: 80.5, y: 61.5, down: true }, caption: 'Grab the file…' },
+  {
+    d: 1700, ...g9('A'), active: 'E', file: file9({ x: MAIL_TAB.x - 0.5, y: MAIL_TAB.y + 1.5 }, { lifted: true, o: 0.9 }),
+    tabs: { ...G9, items: ['A', 'D'], active: 'A', hover: 'D' }, cursor: { ...MAIL_TAB, down: true },
+    badge: { x: MAIL_TAB.x, y: 17.5, text: 'Hold to open this tab', tone: 'hint' }, caption: '…and hold it over the Mail tab',
+  },
+  {
+    d: 1800, ...g9('D'), active: 'D', file: file9({ x: MAIL_TAB.x - 0.5, y: MAIL_TAB.y + 1.5 }, { lifted: true, o: 0.9 }),
+    tabs: { ...G9, items: ['A', 'D'], active: 'D', hover: 'D' }, cursor: { ...MAIL_TAB, down: true },
+    badge: { x: MAIL_TAB.x, y: 17.5, text: 'Now drop it onto the window' }, caption: 'After about half a second, the tab opens',
+  },
+  {
+    d: 1500, ...g9('D', { D: at(G9, { z: 3, hl: true }) }), active: 'D', file: file9({ x: IN_MAIL.x - 0.5, y: IN_MAIL.y + 1.5 }, { lifted: true, o: 0.9 }),
+    cursor: { ...IN_MAIL, down: true }, caption: 'Move down into the window…',
+  },
+  {
+    d: 2600, ...g9('D'), active: 'D', file: file9({ x: IN_MAIL.x - 0.5, y: IN_MAIL.y + 1.5 }, { key: 'dropped', s: 0.95 }),
+    cursor: { x: IN_MAIL.x + 6, y: IN_MAIL.y + 8 }, caption: '…and drop it. Mail gets the file as if you dropped it there directly',
   },
 ]
 
@@ -142,20 +209,26 @@ export const remember = [
   { d: 2800, win: { A: at(G6, { z: 2 }), B: at(G6, { z: 3 }), D: { x: 58, y: 22, w: 32, h: 40, z: 7 } }, tabs: { ...G6, items: ['A', 'B'], active: 'B' }, active: 'D', dock: { running: ['A', 'B', 'D'] }, badge: { x: 44, y: 82, text: 'New windows float' }, caption: "A new Mail window was never in a group, so it stays floating" },
 ]
 
-/* 7 — Auto-tiling (optional, coming soon) -------------------------------- */
-const TOPR = { x: 50.5, y: 2, w: 48.5, h: 46 }
-const BOTR = { x: 50.5, y: 50, w: 48.5, h: 46 }
-export const autoTiling = [
-  { d: 1600, win: { A: at(FULL, { z: 1 }), E: hidden(at(R, { s: 0.9 })), B: hidden(at(BOTR, { s: 0.9 })) }, active: 'A', caption: 'One window fills the screen' },
-  { d: 1300, win: { A: at(L, { z: 1 }), E: hidden(at(R, { s: 0.9 })), B: hidden(at(BOTR, { s: 0.9 })) }, active: 'A', preview: { ...R, label: 'Opening Finder…' }, caption: 'Open a new window. Space is made for it' },
-  { d: 1800, win: { A: at(L, { z: 1 }), E: at(R, { z: 2 }), B: hidden(at(BOTR, { s: 0.9 })) }, active: 'E', caption: 'It takes the right half' },
-  { d: 2000, win: { A: at(L, { z: 1 }), E: at(TOPR, { z: 2 }), B: at(BOTR, { z: 3 }) }, active: 'B', caption: 'The next one splits the right column' },
-  { d: 1800, win: { A: at(L, { z: 1 }), E: at(R, { z: 2 }), B: hidden(at(BOTR, { s: 0.85 })) }, active: 'E', caption: 'Close a window and its space is handed back' },
-  { d: 2200, win: { A: at(FULL, { z: 1 }), E: hidden(at(R, { s: 0.85 })), B: hidden(at(BOTR, { s: 0.85 })) }, active: 'A', caption: 'Close the last one and the screen is full again' },
+/* 6b — Auto-tab new windows --------------------------------------------- */
+// The Browser window gets a tab bar on top, so as a group its window starts 8% lower.
+const W10 = { x: 14, y: 12, w: 62, h: 70 }
+const G10 = { x: 14, y: 20, w: 62, h: 62 }
+const E10 = { x: 50, y: 28, w: 38, h: 44 }
+export const autoTabNew = [
+  { d: 1500, win: { A: at(W10, { z: 2 }), E: at(E10, { o: 0, s: 0.9 }) }, active: 'A', dock: { running: ['A', 'E'] }, cursor: { x: 52, y: 56 }, caption: "Auto-tab New Windows is on, and you're working in Browser" },
+  { d: 800, win: { A: at(W10, { z: 2 }), E: at(E10, { o: 0, s: 0.9 }) }, active: 'A', dock: { running: ['A', 'E'] }, cursor: { x: DOCK_X.E - 0.5, y: 93 }, caption: 'Open Finder from the Dock…' },
+  {
+    d: 1300, win: { A: at(W10, { z: 2 }), E: at(E10, { z: 3 }) }, active: 'E', dock: { running: ['A', 'E'], bounce: 'E' },
+    cursor: { x: DOCK_X.E - 0.5, y: 93, down: true, fast: true }, caption: '…and its new window appears',
+  },
+  {
+    d: 2800, win: { A: at(G10, { z: 2 }), E: at(G10, { z: 3 }) }, tabs: { ...G10, items: ['A', 'E'], active: 'E' }, active: 'E',
+    dock: { running: ['A', 'E'] }, cursor: { x: DOCK_X.E - 0.5, y: 93 }, caption: 'It slides into the Browser frame as a new tab, and becomes the active one',
+  },
 ]
 
-/* 8 — Menu bar ----------------------------------------------------------- */
-const menuItems = (launch) => [
+/* 7 — Menu (shared by the auto-tiling and menu bar demos) -------------- */
+const menuItems = ({ launch = false, tile = false, tab = false } = {}) => [
   { label: 'Paneful Desktop Manager', header: true },
   '-',
   { label: 'Snap Window', key: '▸' },
@@ -163,22 +236,111 @@ const menuItems = (launch) => [
   '-',
   { label: 'Tab with Previous Window', key: '⌃⌥T' },
   { label: 'Minimize Group', key: '⌃⌥M' },
-  { label: 'Remembered Groups', key: '▸' },
+  { label: 'Remembered Groups', key: '▸' }, // 7
+  '-',
+  { label: 'Auto-tile New Windows', on: tile }, // 9
+  { label: 'Auto-tab New Windows', on: tab }, // 10
+  { label: 'Auto-tiling', key: '▸' }, // 11
   '-',
   { label: 'Drag to Screen Edge to Snap', on: true },
   { label: 'Drag onto Title Bar to Tab', on: true },
   { label: 'Auto-tab Remembered Windows', on: true },
-  { label: 'Launch at Login', on: launch },
+  { label: 'Close Button Minimizes Tabs', on: true }, // 16
+  { label: 'Launch at Login', on: launch }, // 17
   '-',
   { label: 'Quit Paneful' },
 ]
+// Cursor height (desktop %) of a menu row, by index in menuItems.
+const MENU_Y = { 7: 31, 9: 37.5, 10: 42, 11: 46.5, 16: 66.5, 17: 71 }
+const STATUS = { x: 95.2, y: -3 }
+
+/* 8 — Auto-tiling -------------------------------------------------------- */
+// Tiles stop above the Dock. A tab group fills its tile: its tab bar takes the top, its window the rest.
+const T_FULL = { x: 1, y: 2, w: 98, h: 86 }
+const T_L = { x: 1, y: 2, w: 48.5, h: 86 }
+const T_R = { x: 50.5, y: 2, w: 48.5, h: 86 }
+const T_TR = { x: 50.5, y: 2, w: 48.5, h: 42 }
+const T_BR = { x: 50.5, y: 46, w: 48.5, h: 42 }
+const TAB = 8
+const inTile = (t) => ({ x: t.x, y: t.y + TAB, w: t.w, h: t.h - TAB })
+const offT = (t) => ({ ...t, o: 0, s: 0.92 })
+const tiled = (groupTile, rest, extra = {}) => ({
+  win: {
+    A: at(inTile(groupTile), { z: 2 }), B: at(inTile(groupTile), { z: 1 }),
+    E: offT(T_R), E2: offT(T_BR), ...rest,
+  },
+  tabs: { ...inTile(groupTile), items: ['A', 'B'], active: 'A' },
+  dock: { running: ['A', 'B', 'E'] },
+  active: 'A',
+  ...extra,
+})
+export const autoTiling = [
+  { d: 1300, ...tiled(T_FULL), cursor: { x: 62, y: 52 }, caption: 'A tab group fills the screen' },
+  { d: 700, ...tiled(T_FULL), cursor: STATUS, caption: 'Switch on Auto-tile New Windows in the menu bar' },
+  { d: 1000, ...tiled(T_FULL), cursor: { ...STATUS, down: true, fast: true }, menu: { items: menuItems() }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
+  { d: 800, ...tiled(T_FULL), cursor: { x: 80, y: MENU_Y[9] }, menu: { items: menuItems(), hover: 9 }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
+  { d: 1100, ...tiled(T_FULL), cursor: { x: 80, y: MENU_Y[9], down: true, fast: true }, menu: { items: menuItems({ tile: true }), hover: 9 }, caption: 'Switch on Auto-tile New Windows in the menu bar' },
+  { d: 900, ...tiled(T_FULL), cursor: { x: DOCK_X.E - 0.5, y: 93 }, caption: 'Now open Finder from the Dock…' },
+  {
+    d: 1700, ...tiled(T_L, { E: at(T_R, { z: 3, ph: true }) }, { active: 'E' }), dock: { running: ['A', 'B', 'E'], bounce: 'E' },
+    cursor: { x: DOCK_X.E - 0.5, y: 93, down: true, fast: true }, caption: '…the group shrinks to the left half, and a placeholder holds the right',
+  },
+  { d: 1700, ...tiled(T_L, { E: at(T_R, { z: 3 }) }, { active: 'E' }), cursor: { x: 75, y: 60 }, caption: 'The Finder window arrives and takes its place' },
+  {
+    d: 1200, ...tiled(T_L, { E: at(T_TR, { z: 3 }), E2: at(T_BR, { z: 4, ph: true }) }, { active: 'E2' }), cursor: { x: 75, y: 60 },
+    keys: ['⌘', 'N'], caption: 'Open a second Finder window…',
+  },
+  { d: 1800, ...tiled(T_L, { E: at(T_TR, { z: 3 }), E2: at(T_BR, { z: 4 }) }, { active: 'E2' }), cursor: { x: 75, y: 60 }, caption: '…and the right column splits. Each window gets an equal share' },
+  { d: 800, ...tiled(T_L, { E: at(T_TR, { z: 3 }), E2: at(T_BR, { z: 4 }) }, { active: 'E2' }), cursor: RED(T_BR), caption: 'Close the bottom one…' },
+  {
+    d: 1800, ...tiled(T_L, { E: at(T_R, { z: 3 }), E2: offT(at(T_BR, { z: 4 })) }, { active: 'E' }), cursor: { ...RED(T_BR), down: true, fast: true },
+    caption: '…and the top one takes the whole right half',
+  },
+  { d: 800, ...tiled(T_L, { E: at(T_R, { z: 3 }) }, { active: 'E' }), cursor: RED(T_R), caption: 'Close the last Finder window…' },
+  {
+    d: 2500, ...tiled(T_FULL, { E: offT(at(T_R, { z: 3 })) }), cursor: { ...RED(T_R), down: true, fast: true },
+    caption: '…and the group fills the screen again',
+  },
+]
+
+/* 9 — Arrange tiles ------------------------------------------------------ */
+const A_L = { x: 1, y: 2, w: 48.5, h: 94 }
+const A_TR = { x: 50.5, y: 2, w: 48.5, h: 46 }
+const A_BR = { x: 50.5, y: 50, w: 48.5, h: 46 }
+// After dragging the column edge from x ≈ 50 to x ≈ 63.
+const W_L = { x: 1, y: 2, w: 61.5, h: 94 }
+const W_TR = { x: 63.5, y: 2, w: 35.5, h: 46 }
+const W_BR = { x: 63.5, y: 50, w: 35.5, h: 46 }
+const swapped = { A: at(A_L, { z: 2 }), C: at(A_TR, { z: 3 }), B: at(A_BR, { z: 1 }) }
+const resized = { A: at(W_L, { z: 2 }), C: at(W_TR, { z: 3 }), B: at(W_BR, { z: 1 }) }
+export const arrangeTiles = [
+  { d: 1500, win: { C: at(A_L, { z: 2 }), A: at(A_TR, { z: 1 }), B: at(A_BR, { z: 1 }) }, active: 'C', cursor: { x: 30, y: 60 }, caption: 'Three windows in the layout' },
+  { d: 800, win: { C: at(A_L, { z: 2 }), A: at(A_TR, { z: 1 }), B: at(A_BR, { z: 1 }) }, active: 'C', cursor: { x: 24, y: 4.5 }, caption: 'Drag a tiled window by its title bar…' },
+  { d: 450, win: { C: at(A_L, { z: 2 }), A: at(A_TR, { z: 1 }), B: at(A_BR, { z: 1 }) }, active: 'C', cursor: { x: 24, y: 4.5, down: true }, caption: 'Drag a tiled window by its title bar…' },
+  {
+    d: 1500, win: { C: at(A_L, { x: 50, y: 15, z: 5 }), A: at(A_TR, { z: 1 }), B: at(A_BR, { z: 1 }) }, active: 'C',
+    cursor: { x: 73, y: 17.5, down: true }, caption: '…onto another tile',
+  },
+  { d: 1800, win: swapped, active: 'C', cursor: { x: 73, y: 17.5 }, caption: 'Let go, and the two swap places' },
+  { d: 800, win: swapped, active: 'C', cursor: { x: 49.8, y: 60 }, caption: 'Drag the edge between tiles…' },
+  { d: 450, win: swapped, active: 'C', cursor: { x: 49.8, y: 60, down: true }, caption: 'Drag the edge between tiles…' },
+  { d: 1500, win: resized, active: 'C', cursor: { x: 62.8, y: 60, down: true }, caption: '…and the tiles next to it resize to match' },
+  { d: 1000, win: resized, active: 'C', cursor: { x: 62.8, y: 60 }, caption: '…and the tiles next to it resize to match' },
+  { d: 800, win: resized, active: 'C', cursor: { x: 78, y: 52.5 }, caption: 'Drag a tile somewhere that isn’t another tile…' },
+  { d: 450, win: { ...resized, B: at(W_BR, { z: 3 }) }, active: 'B', cursor: { x: 78, y: 52.5, down: true }, caption: 'Drag a tile somewhere that isn’t another tile…' },
+  { d: 1300, win: { ...resized, B: at(W_BR, { x: 69, y: 63, z: 4 }) }, active: 'B', cursor: { x: 83.5, y: 65.5, down: true }, caption: 'Drag a tile somewhere that isn’t another tile…' },
+  { d: 2200, win: { ...resized, B: at(W_BR, { z: 3 }) }, active: 'B', cursor: { x: 83.5, y: 65.5 }, caption: '…and let go. It slides back into its tile' },
+]
+
+/* 10 — Menu bar ---------------------------------------------------------- */
 const mWin = { A: { x: 6, y: 18, w: 46, h: 62, z: 1 } }
 export const menuBar = [
   { d: 1200, win: mWin, cursor: { x: 70, y: 40 }, caption: 'Paneful lives in your menu bar' },
-  { d: 700, win: mWin, cursor: { x: 95.2, y: -3 }, caption: 'Paneful lives in your menu bar' },
-  { d: 1600, win: mWin, cursor: { x: 95.2, y: -3, down: true, fast: true }, menu: { items: menuItems(false) }, caption: 'Every action and setting in one place' },
-  { d: 1500, win: mWin, cursor: { x: 80, y: 62 }, menu: { items: menuItems(false), hover: 12 }, caption: 'Turn features on or off' },
-  { d: 1500, win: mWin, cursor: { x: 80, y: 62, down: true, fast: true }, menu: { items: menuItems(true), hover: 12 }, caption: 'Turn on Launch at Login' },
-  { d: 1800, win: mWin, cursor: { x: 80, y: 33 }, menu: { items: menuItems(true), hover: 7 }, caption: 'Review or forget remembered groups' },
+  { d: 700, win: mWin, cursor: STATUS, caption: 'Paneful lives in your menu bar' },
+  { d: 1600, win: mWin, cursor: { ...STATUS, down: true, fast: true }, menu: { items: menuItems() }, caption: 'Every action and setting in one place' },
+  { d: 1500, win: mWin, cursor: { x: 80, y: MENU_Y[17] }, menu: { items: menuItems(), hover: 17 }, caption: 'Turn features on or off' },
+  { d: 1500, win: mWin, cursor: { x: 80, y: MENU_Y[17], down: true, fast: true }, menu: { items: menuItems({ launch: true }), hover: 17 }, caption: 'Turn on Launch at Login' },
+  { d: 1600, win: mWin, cursor: { x: 80, y: MENU_Y[11] }, menu: { items: menuItems({ launch: true }), hover: 11 }, caption: 'Auto-tiling options have their own submenu' },
+  { d: 1800, win: mWin, cursor: { x: 80, y: MENU_Y[7] }, menu: { items: menuItems({ launch: true }), hover: 7 }, caption: 'Review or forget remembered groups' },
   { d: 1200, win: mWin, cursor: { x: 70, y: 40 }, caption: 'Paneful lives in your menu bar' },
 ]

@@ -13,9 +13,13 @@ const sections = [
   { id: 'side-by-side', title: 'Side by side', group: 'Snapping' },
   { id: 'tab-groups', title: 'Make a tab group', group: 'Tab groups' },
   { id: 'manage-tabs', title: 'Manage tabs', group: 'Tab groups' },
-  { id: 'reorder-tabs', title: 'Reorder tabs', group: 'Tab groups', isNew: true },
+  { id: 'reorder-tabs', title: 'Reorder tabs', group: 'Tab groups' },
+  { id: 'close-button', title: 'Close button', group: 'Tab groups', isNew: true },
+  { id: 'drop-on-tabs', title: 'Drop files onto tabs', group: 'Tab groups', isNew: true },
   { id: 'remembered', title: 'Remembered groups', group: 'Tab groups' },
-  { id: 'auto-tiling', title: 'Auto-tiling', group: 'Coming soon', soon: true },
+  { id: 'auto-tab-new', title: 'Auto-tab new windows', group: 'Tab groups', isNew: true },
+  { id: 'auto-tiling', title: 'Auto-tiling', group: 'Auto-tiling', isNew: true },
+  { id: 'arrange-tiles', title: 'Arrange tiles', group: 'Auto-tiling', isNew: true },
   { id: 'menu-bar', title: 'Menu bar & settings', group: 'Reference' },
   { id: 'shortcuts', title: 'Keyboard shortcuts', group: 'Reference' },
   { id: 'troubleshooting', title: 'Troubleshooting & FAQ', group: 'Reference' },
@@ -31,16 +35,22 @@ const shortcuts = [
     ['⌃⌥T', 'Tab the focused window with the previous one'], ['⌃⌥]', 'Next tab'], ['⌃⌥[', 'Previous tab'],
     ['⌃⌥W', 'Move the active tab out of its group'], ['⌃⌥M', 'Minimize the whole group'],
   ]],
+  ['Auto-tiling', [
+    ['⌃⌥F', 'Float the focused window, or tile it again'],
+  ]],
 ]
 
 const faqs = [
-  ['Paneful does nothing when I drag or press shortcuts', 'Paneful needs Accessibility access. Open System Settings → Privacy & Security → Accessibility and make sure Paneful is switched on. If it is on but still not working (often after an update), remove it with the – button, add it again, and relaunch Paneful.'],
-  ['macOS says it can’t verify the developer', 'Open System Settings → Privacy & Security, scroll down, and click Open Anyway next to the Paneful message. You only need to do this once per version.'],
+  ['Paneful does nothing when I drag or press shortcuts', <>Paneful needs Accessibility access. Open <b>System Settings → Privacy &amp; Security → Accessibility</b> and make sure Paneful is switched on. If it still doesn’t work, choose <b>Grant Accessibility Access…</b> in the Paneful menu.</>],
+  ['Paneful stopped working after an update', <>After an update, macOS can keep the old version’s Accessibility entry. That used to mean removing Paneful with the – button and relaunching it. Now Paneful notices the stale entry, removes it, and macOS asks again. Just switch Paneful on in <b>System Settings → Privacy &amp; Security → Accessibility</b>. No removing, no relaunching. If it still doesn’t start, choose <b>Grant Accessibility Access…</b> in the menu-bar menu. It does the same repair and opens the right settings page.</>],
+  ['macOS says it can’t verify the developer', <>Open <b>System Settings → Privacy &amp; Security</b>, scroll down, and click <b>Open Anyway</b> next to the Paneful message. You only need to do this once per version.</>],
   ['Windows snap, then jump somewhere else', 'macOS has its own edge tiling, and Stage Manager can fight Paneful too. Paneful’s menu warns you when either is on and links to the setting that turns it off.'],
   ['A shortcut doesn’t work', 'Another app (for example another window manager) probably uses the same ⌃⌥ shortcut. Quit that app, or change its shortcut, and relaunch Paneful.'],
   ['A window doesn’t fill its tile exactly', 'Some apps enforce a minimum size or animate their own resizing. Paneful gets as close as the app allows.'],
+  ['The red button doesn’t close my tab’s window', <>In a tab group, the red button sends the window to the Dock instead. To really close it, <b>⌥-click</b> the red button, or right-click its tab → <b>Close Window</b>. ⌘W still closes it as usual. To get the normal red button back, switch off <b>Close Button Minimizes Tabs</b> in the menu bar.</>],
+  ['Auto-tiling or auto-tab caught a window I want to keep floating', <>Press <b>⌃⌥F</b> (<b>Float Focused Window</b>) to take a tiled window out of the layout, or <b>⌃⌥W</b> to move a tab out of its group. To keep an app's new windows out of both auto-tiling and auto-tab, bring that app to the front and choose <b>Auto-tiling → Always Float <i>App name</i></b> in the menu bar.</>],
   ['Can I tab or tile full-screen windows?', 'No. Windows in macOS full-screen mode (the green button) live in their own Space and can’t be moved by any window manager. Exit full screen first.'],
-  ['Where are my remembered groups stored?', 'In ~/Library/Application Support/Paneful/groups.json. Use Remembered Groups in the menu bar to forget one or all of them.'],
+  ['Where are my remembered groups stored?', <>In ~/Library/Application Support/Paneful/groups.json. Use <b>Remembered Groups</b> in the menu bar to forget one or all of them.</>],
   ['Why isn’t Paneful on the Mac App Store?', 'Window managers need to control other apps’ windows, which the App Store sandbox doesn’t allow. Paneful is distributed through GitHub instead, and it’s free and open source.'],
 ]
 
@@ -185,6 +195,10 @@ export default function DocsApp() {
               <>Look for the Paneful icon in your menu bar. Every feature and setting is there.</>,
             ]}
           >
+            <p className="doc-note">
+              Updating from an older version? If macOS asks for Accessibility again, just switch Paneful back on. You don't need
+              to remove it first (<a href="#troubleshooting">more</a>).
+            </p>
             <div className="callout">
               <b>Tip:</b> If you use another window manager, quit it first. Two apps moving the same windows will fight each other.
             </div>
@@ -255,8 +269,9 @@ export default function DocsApp() {
               <tbody>
                 <tr><td>Switch tab</td><td>Click it, or <Kbd>⌃⌥]</Kbd> / <Kbd>⌃⌥[</Kbd></td></tr>
                 <tr><td>Reorder tabs</td><td>Drag a tab sideways. It stays where you drop it (<a href="#reorder-tabs">see how</a>)</td></tr>
-                <tr><td>Remove a tab</td><td>Hover and click ✕, drag the tab down out of the bar, right-click → Move Out of Group, or <Kbd>⌃⌥W</Kbd></td></tr>
-                <tr><td>Close a tab's window</td><td>Right-click → Close Window. The group still remembers it</td></tr>
+                <tr><td>Remove a tab</td><td>Drag the tab down out of the bar, right-click → Move Out of Group, or <Kbd>⌃⌥W</Kbd></td></tr>
+                <tr><td>Minimize a tab</td><td>Hover the tab and click its ✕, or click the red button on its window. It goes to the Dock, and the next tab takes its place. Click it in the Dock to bring it back as the active tab (<a href="#close-button">see how</a>)</td></tr>
+                <tr><td>Close a tab's window</td><td>⌥-click the red button, or right-click → Close Window. The group still remembers it</td></tr>
                 <tr><td>Minimize the group</td><td><Kbd>⌃⌥M</Kbd>, or right-click a tab → Minimize Group. Restore any of its windows to bring the whole group back</td></tr>
                 <tr><td>Ungroup everything</td><td>Right-click a tab → Ungroup All</td></tr>
               </tbody>
@@ -282,6 +297,39 @@ export default function DocsApp() {
           </DocSection>
 
           <DocSection
+            id="close-button"
+            kicker="Tab groups"
+            title="Close button minimizes tabs"
+            intro="In a tab group, clicking a window's red close button sends that window to the Dock instead of closing it. This is on by default."
+            demoProps={{ steps: demo.closeButton, windows: ['A', 'B', 'C'], dock: true }}
+          >
+            <ul className="doc-list">
+              <li><b>Click the red button</b> on a tab's window. The window goes to the Dock, and the next tab takes its place.</li>
+              <li><b>Click it in the Dock</b> to bring it back as the active tab.</li>
+              <li><b>The ✕ on a tab</b> (shown when you hover it) does the same: the window goes to the Dock and keeps its place in the group. To take a window out of the group instead, drag its tab down out of the bar, or right-click → <b>Move Out of Group</b>.</li>
+              <li><b>To really close it</b>, <b>⌥-click</b> the red button, or right-click its tab → <b>Close Window</b>.</li>
+              <li>⌘W isn't changed. It still closes the window.</li>
+              <li><b>Apps that hide their window instead of quitting</b> (Postman, Microsoft Teams, Slack…) are handled the same way. If such a window disappears from a group, for example with ⌘W, its tab steps aside like a minimized tab and the next tab takes over. It comes back as the active tab when the app shows the window again.</li>
+              <li>Want the normal red button back? Switch off <b>Close Button Minimizes Tabs</b> in the menu bar.</li>
+            </ul>
+          </DocSection>
+
+          <DocSection
+            id="drop-on-tabs"
+            kicker="Tab groups"
+            title="Drop files onto tabs"
+            intro="Want to drop something into a window that's hidden behind another tab? Hold it over that tab, and the tab opens for you."
+            demoProps={{ steps: demo.dropOnTabs, windows: ['A', 'D', 'E'] }}
+            steps={[
+              <>Drag a file, folder, text or image from anywhere, and hold it over a tab in a tab bar. A pill says <b>Hold to open this tab</b>.</>,
+              <>After about half a second, that tab opens and its window comes to the front. The pill now says <b>Now drop it onto the window</b>.</>,
+              <>Move down into the window and drop it there. For example, into a Finder folder, an upload area, or an app's drop zone.</>,
+            ]}
+          >
+            <p className="doc-note">Holding it over the tab that's already open shows <b>Now drop it onto the window</b> straight away.</p>
+          </DocSection>
+
+          <DocSection
             id="remembered"
             kicker="Tab groups"
             title="Remembered groups"
@@ -290,7 +338,7 @@ export default function DocsApp() {
           >
             <ul className="doc-list">
               <li><b>Remembered windows rejoin on their own</b>, a few seconds after they appear.</li>
-              <li><b>New windows float.</b> A window that's never been in a group only joins one when you drag it in or press <Kbd>⌃⌥T</Kbd>.</li>
+              <li><b>New windows float.</b> A window that's never been in a group only joins one when you drag it in or press <Kbd>⌃⌥T</Kbd>, or when <a href="#auto-tab-new">Auto-tab New Windows</a> is on.</li>
               <li><b>Removing a tab or ungrouping forgets it.</b> Closing a window, quitting the app, or quitting Paneful does not.</li>
               <li>Windows are matched by app, plus their title when an app has several windows open.</li>
               <li>Review or forget groups under <b>Remembered Groups</b> in the menu bar, or switch off <b>Auto-tab Remembered Windows</b>.</li>
@@ -298,13 +346,68 @@ export default function DocsApp() {
           </DocSection>
 
           <DocSection
+            id="auto-tab-new"
+            kicker="Tab groups"
+            title="Auto-tab new windows"
+            intro="An optional mode that tabs new windows for you. A new window joins the tab group of the window you were using, or starts a new group with it. It's off by default."
+            demoProps={{ steps: demo.autoTabNew, windows: ['A', 'E'], dock: true }}
+            steps={[
+              <>Click the Paneful icon in the menu bar and switch on <b>Auto-tab New Windows</b>.</>,
+              <>Open a new window. It joins the tab group of the window you were using, or starts a new group with that window.</>,
+              <>The new window becomes the active tab, in that group's frame.</>,
+            ]}
+          >
+            <ul className="doc-list">
+              <li><b>It works across apps.</b> In Browser, open a new Finder window from the Dock, and Finder becomes a tab next to Browser.</li>
+              <li><b>Windows that are already open aren't touched</b> when you turn it on.</li>
+              <li><b>Some windows open normally:</b> dialogs, sheets, full-screen windows, windows that can't be resized, and apps set to <b>Always Float <i>App name</i></b> in the <b>Auto-tiling</b> submenu.</li>
+              <li><b>With auto-tiling on too</b>, a new window joins a tab first. A tab group is one tile, so the window lands in that group's tile.</li>
+              <li><b>It's not the same as Auto-tab Remembered Windows.</b> That one puts windows that were in a group before back into it. This one tabs windows that are new.</li>
+            </ul>
+          </DocSection>
+
+          <DocSection
             id="auto-tiling"
-            kicker="Optional mode"
-            soon
+            kicker="Auto-tiling"
             title="Auto-tiling"
-            intro="An optional mode for people who want a fully tiled desktop. New windows make room for themselves, and closing one hands its space back. It will be off by default, so new windows float unless you turn it on."
-            demoProps={{ steps: demo.autoTiling, windows: ['A', 'E', 'B'], label: 'Preview of an upcoming feature' }}
-          />
+            intro="An optional mode that arranges new windows for you. New windows make room for themselves, and closing one hands its space back. It's off by default, so windows float unless you turn it on."
+            demoProps={{ steps: demo.autoTiling, windows: ['A', 'B', 'E', 'E2'], dock: true }}
+            steps={[
+              <>Click the Paneful icon in the menu bar and switch on <b>Auto-tile New Windows</b>.</>,
+              <>Open a new window. The window you were using shrinks to the left half, and the new window takes the right half.</>,
+              <>Open more windows. They stack top to bottom in the right column, and each one gets an equal share.</>,
+            ]}
+          >
+            <ul className="doc-list">
+              <li><b>A placeholder holds the slot.</b> While an app is launching, or a new window is appearing, a dark tile with the app's icon and name keeps its place until the real window arrives.</li>
+              <li><b>Closing or minimizing a window gives its space to the others.</b> When only one is left, it expands back to the full screen. Un-minimize a window and it goes back to the same slot.</li>
+              <li><b>A tab group counts as one tile.</b> Its tab bar spans the tile.</li>
+              <li><b>Each display has its own layout</b>, and each Space shows only its own windows.</li>
+              <li><b>Only new windows are tiled.</b> Windows that were already open when you turned auto-tiling on stay where they are. The exception is the window you were using when the first new window opens.</li>
+            </ul>
+          </DocSection>
+
+          <DocSection
+            id="arrange-tiles"
+            kicker="Auto-tiling"
+            title="Arrange tiles"
+            intro="Swap tiles, resize them, or take a window out of the layout. The other tiles adjust around it."
+            demoProps={{ steps: demo.arrangeTiles, windows: ['A', 'B', 'C'] }}
+          >
+            <table className="doc-table">
+              <tbody>
+                <tr><td>Swap two windows</td><td>Drag a tiled window onto another tile and let go</td></tr>
+                <tr><td>Resize a tile</td><td>Drag its edge. The neighbouring tiles resize to match</td></tr>
+                <tr><td>Move to another display</td><td>Drag the window onto the other display. It joins that display's layout</td></tr>
+                <tr><td>Change your mind</td><td>Let go anywhere else, and the window slides back into its tile</td></tr>
+                <tr><td>Float a window</td><td><Kbd>⌃⌥F</Kbd>, or <b>Auto-tiling → Float Focused Window</b>. Snapping a tiled window to an edge or with a shortcut also floats it</td></tr>
+                <tr><td>Tile it again</td><td><Kbd>⌃⌥F</Kbd>, or <b>Auto-tiling → Tile Focused Window</b></td></tr>
+                <tr><td>Always float an app</td><td><b>Auto-tiling → Always Float <i>App name</i></b>, for the app in front. Its new windows are never tiled or auto-tabbed</td></tr>
+                <tr><td>Float everything</td><td><b>Auto-tiling → Float All Windows</b> stops arranging every window at once and leaves each one where it is</td></tr>
+              </tbody>
+            </table>
+            <p className="doc-note">Dialogs, sheets, full-screen windows and windows that can't be resized always float.</p>
+          </DocSection>
 
           <DocSection
             id="menu-bar"
@@ -318,6 +421,10 @@ export default function DocsApp() {
                 <tr><td>Drag to Screen Edge to Snap</td><td>Snap windows by dragging them to an edge or corner</td></tr>
                 <tr><td>Drag onto Title Bar to Tab</td><td>Make tab groups by dropping one window onto another</td></tr>
                 <tr><td>Auto-tab Remembered Windows</td><td>Let remembered windows rejoin their groups by themselves</td></tr>
+                <tr><td>Close Button Minimizes Tabs</td><td>In a tab group, the red button sends a window to the Dock instead of closing it. On by default (<a href="#close-button">more</a>)</td></tr>
+                <tr><td>Auto-tile New Windows</td><td>Arrange new windows into tiles. Off by default (<a href="#auto-tiling">more</a>)</td></tr>
+                <tr><td>Auto-tab New Windows</td><td>Tab each new window with the window you were using. Off by default (<a href="#auto-tab-new">more</a>)</td></tr>
+                <tr><td>Auto-tiling ▸</td><td>Float or tile the focused window (<Kbd>⌃⌥F</Kbd>), always float the app in front (its new windows are never tiled or auto-tabbed), or float all windows</td></tr>
                 <tr><td>Launch at Login</td><td>Start Paneful when you log in</td></tr>
               </tbody>
             </table>

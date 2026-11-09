@@ -3,7 +3,7 @@ import { SectionHead, Reveal } from './shared.jsx'
 const cards = [
   { title: 'Built for deep focus', body: 'One frame per task. Your research, chat and docs stay together instead of hiding behind each other.', wide: false },
   { title: 'Light as air', body: 'Native Swift and AppKit. Paneful idles at near-zero CPU and never touches your files.', wide: false },
-  { title: 'Floats until you say so', body: 'New windows open where their apps put them. Nothing gets tabbed until you drop it onto a group, and after that Paneful remembers.', wide: true },
+  { title: 'Floats until you say so', body: 'New windows open where their apps put them, unless you turn on auto-tiling or auto-tab. Otherwise nothing gets tabbed until you drop it onto a group, and after that Paneful remembers.', wide: true },
 ]
 
 function GlowCard({ title, body, wide, delay }) {

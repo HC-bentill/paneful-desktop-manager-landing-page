@@ -33,8 +33,8 @@ export default function Hero() {
           Your windows,<br /><span className="grad-text">finally in order.</span>
         </Reveal>
         <Reveal as="p" delay={0.16} className="sub">
-          Paneful snaps windows side by side and groups apps from <em>any</em> developer into tabs.
-          One tidy desktop, zero dragging around.
+          Paneful snaps windows side by side, groups apps from <em>any</em> developer into tabs, and can
+          tile new windows for you. One tidy desktop, zero dragging around.
         </Reveal>
         <Reveal delay={0.24} className="hero-ctas">
           <a href={DOWNLOAD_URL} className="btn btn--primary">Download for Mac</a>

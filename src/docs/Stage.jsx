@@ -16,7 +16,16 @@ export const APPS = {
   C: { title: 'Code editor', icon: glyphs.code, tint: '#ff6a5c' },
   D: { title: 'Mail', icon: glyphs.mail, tint: '#34d399' },
   E: { title: 'Finder', icon: glyphs.folder, tint: '#f5b544' },
+  // A second Finder window (windows are keyed by id, so two windows of one app need two ids).
+  E2: { title: 'Downloads', app: 'Finder', icon: glyphs.folder, tint: '#f5b544' },
 }
+
+/** A generic document icon, for the file that gets dragged around. */
+const fileGlyph = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+    <path d="M6 3h8l5 5v13H6V3Z" fill="#fff" /><path d="M14 3v5h5" /><path d="M9 13h7M9 16.5h5" strokeLinecap="round" />
+  </svg>
+)
 
 const ease = [0.22, 1, 0.36, 1]
 const TAB_H = 8 // tab bar height, % of desktop
@@ -33,12 +42,17 @@ function useTimeline(steps, inView) {
   return { i, step: steps[i], paused, togglePause: () => setPaused((p) => !p), restart: () => setI(0) }
 }
 
+/**
+ * f.ph: shows the window as a dark placeholder tile (app icon + name), like auto-tiling does while an app
+ * launches. Turning it off cross-fades to the real window.
+ * f.hl: the window highlights itself as a drop target (something is being dragged over it).
+ */
 function Window({ id, f, active }) {
   const app = APPS[id]
   const hidden = !f || f.o === 0
   return (
     <motion.div
-      className={`dwin ${active ? 'is-active' : ''}`}
+      className={`dwin ${active ? 'is-active' : ''} ${f?.hl ? 'is-drop' : ''}`}
       initial={false}
       animate={{
         left: `${f?.x ?? 40}%`, top: `${f?.y ?? 30}%`, width: `${f?.w ?? 30}%`, height: `${f?.h ?? 40}%`,
@@ -55,7 +69,38 @@ function Window({ id, f, active }) {
         <div className="dwin-hero" />
         <div className="dwin-line w80" /><div className="dwin-line w60" /><div className="dwin-line w70" />
       </div>
+      <motion.div
+        className="dwin-ph"
+        initial={false}
+        animate={{ opacity: f?.ph ? 1 : 0 }}
+        transition={{ duration: 0.45 }}
+        aria-hidden="true"
+      >
+        <i>{app.icon}</i>
+        <span>{app.app ?? app.title}</span>
+      </motion.div>
     </motion.div>
+  )
+}
+
+/** A file being dragged: { x, y, name, lifted, s, o, key }. A new key fades the old one out and the new one in. */
+function DragFile({ f }) {
+  return (
+    <AnimatePresence>
+      {f && (
+        <motion.div
+          key={f.key ?? 'file'}
+          className={`dfile ${f.lifted ? 'is-lifted' : ''}`}
+          initial={{ opacity: 0, scale: 0.6, x: '-50%', y: '-50%', left: `${f.x}%`, top: `${f.y}%` }}
+          animate={{ opacity: f.o ?? 1, scale: f.s ?? 1, x: '-50%', y: '-50%', left: `${f.x}%`, top: `${f.y}%` }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.7, ease }}
+        >
+          <i>{fileGlyph}</i>
+          <span>{f.name}</span>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -74,13 +119,14 @@ function TabBar({ t }) {
           <AnimatePresence initial={false}>
             {t.items.map((id) => {
               // t.drag = { id, dx, out }: the tab being dragged is lifted, shifted sideways by dx (% of its
-              // width), and dips and fades while it is pulled out of the bar.
+              // width), and dips and fades while it is pulled out of the bar. t.hover = id outlines a tab that
+              // something is held over.
               const drag = t.drag?.id === id ? t.drag : null
               return (
                 <motion.div
                   key={id}
                   layout
-                  className={`dtab ${t.active === id ? 'is-active' : ''} ${drag ? 'is-lifted' : ''}`}
+                  className={`dtab ${t.active === id ? 'is-active' : ''} ${drag ? 'is-lifted' : ''} ${t.hover === id ? 'is-hover' : ''}`}
                   initial={{ opacity: 0, scale: 0.6 }}
                   animate={{ opacity: drag?.out ? 0.45 : 1, scale: 1, x: drag?.dx ?? '0%', y: drag?.out ? '45%' : '0%' }}
                   exit={{ opacity: 0, scale: 0.6 }}
@@ -222,6 +268,7 @@ export function Stage({ steps, windows = ['A', 'B'], dock = false, label }) {
           ))}
           <TabBar t={step.tabs} />
           <Preview p={step.preview} />
+          <DragFile f={step.file} />
           <AnimatePresence>
             {step.badge && (
               <motion.span
