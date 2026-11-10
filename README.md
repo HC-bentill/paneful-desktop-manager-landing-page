@@ -39,3 +39,9 @@ Links use `import.meta.env.BASE_URL`, so the site also works under a sub-path su
 
 The `Notify me` form is UI-only. Wire `src/components/Cta.jsx` to a mailing list before launch.
 Deploys to any static host (GitHub Pages, Vercel, Netlify).
+
+## Analytics
+Both pages render `<Analytics />` from `@vercel/analytics` (in `src/main.jsx` and `src/docs-main.jsx`), which records
+page views once **Analytics is enabled for the project in the Vercel dashboard**. During `npm run dev` it only logs
+to the browser console. The script is served from `/_vercel/insights/`, so it only reports on Vercel deployments;
+on other hosts it does nothing.
