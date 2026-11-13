@@ -14,13 +14,15 @@ const sections = [
   { id: 'tab-groups', title: 'Make a tab group', group: 'Tab groups' },
   { id: 'manage-tabs', title: 'Manage tabs', group: 'Tab groups' },
   { id: 'reorder-tabs', title: 'Reorder tabs', group: 'Tab groups' },
-  { id: 'close-button', title: 'Close button', group: 'Tab groups', isNew: true },
-  { id: 'drop-on-tabs', title: 'Drop files onto tabs', group: 'Tab groups', isNew: true },
+  { id: 'close-button', title: 'Close button', group: 'Tab groups' },
+  { id: 'drop-on-tabs', title: 'Drop files onto tabs', group: 'Tab groups' },
   { id: 'remembered', title: 'Remembered groups', group: 'Tab groups' },
-  { id: 'auto-tab-new', title: 'Auto-tab new windows', group: 'Tab groups', isNew: true },
-  { id: 'auto-tiling', title: 'Auto-tiling', group: 'Auto-tiling', isNew: true },
-  { id: 'arrange-tiles', title: 'Arrange tiles', group: 'Auto-tiling', isNew: true },
-  { id: 'saved-layouts', title: 'Saved layouts', group: 'Layouts', isNew: true },
+  { id: 'auto-tab-new', title: 'Auto-tab new windows', group: 'Tab groups' },
+  { id: 'full-screen', title: 'Full-screen tab groups', group: 'Tab groups', isNew: true },
+  { id: 'desktops', title: 'Move between desktops', group: 'Tab groups', isNew: true },
+  { id: 'auto-tiling', title: 'Auto-tiling', group: 'Auto-tiling' },
+  { id: 'arrange-tiles', title: 'Arrange tiles', group: 'Auto-tiling' },
+  { id: 'saved-layouts', title: 'Saved layouts', group: 'Layouts' },
   { id: 'menu-bar', title: 'Menu bar & settings', group: 'Reference' },
   { id: 'shortcuts', title: 'Keyboard shortcuts', group: 'Reference' },
   { id: 'troubleshooting', title: 'Troubleshooting & FAQ', group: 'Reference' },
@@ -54,7 +56,8 @@ const faqs = [
   ['The red button doesn’t close my tab’s window', <>In a tab group, the red button sends the window to the Dock instead. To really close it, <b>⌥-click</b> the red button, or right-click its tab → <b>Close Window</b>. ⌘W still closes it as usual. To get the normal red button back, switch off <b>Close Button Minimizes Tabs</b> in the menu bar.</>],
   ['Auto-tiling or auto-tab caught a window I want to keep floating', <>Press <b>⌃⌥F</b> (<b>Float Focused Window</b>) to take a tiled window out of the layout, or <b>⌃⌥W</b> to move a tab out of its group. To keep an app's new windows out of both auto-tiling and auto-tab, bring that app to the front and choose <b>Auto-tiling → Always Float <i>App name</i></b> in the menu bar.</>],
   ['A window didn’t come back with my layout', <>Paneful only moves windows that are open on the current desktop. It doesn’t launch apps, so open the app and press the shortcut again. When an app has several windows, Paneful tells them apart by title, so a window whose title has changed may swap places with a sibling. Put them where you want them and save the layout again under the same number.</>],
-  ['Can I tab or tile full-screen windows?', 'No. Windows in macOS full-screen mode (the green button) live in their own Space and can’t be moved by any window manager. Exit full screen first.'],
+  ['Can I tab or tile full-screen windows?', <>In a tab group, the green button makes the whole group fill the screen instead, so you keep your tabs (<a href="#full-screen">see how</a>). A window in macOS’s own full screen (⌥-click the green button) lives in a Space of its own: no window manager can move it there. Its tab waits in the bar, dimmed, until it leaves full screen.</>],
+  ['Why does moving a group to another desktop take a few seconds?', <>macOS doesn’t let one app move another app’s windows between desktops, not even through hidden system calls. Mission Control can, so Paneful drags each window there in Mission Control, like you would, about a second per window. Moving the mouse meanwhile is fine; a click or a key press stops it (<a href="#desktops">more</a>).</>],
   ['Where are my remembered groups stored?', <>In ~/Library/Application Support/Paneful/groups.json. Use <b>Remembered Groups</b> in the menu bar to forget one or all of them.</>],
   ['Why isn’t Paneful on the Mac App Store?', 'Window managers need to control other apps’ windows, which the App Store sandbox doesn’t allow. Paneful is distributed through GitHub instead, and it’s free and open source.'],
 ]
@@ -373,6 +376,46 @@ export default function DocsApp() {
           </DocSection>
 
           <DocSection
+            id="full-screen"
+            kicker="Tab groups"
+            title="Full-screen tab groups"
+            intro="Click the green button on a tab's window, and the whole group fills the screen, tab bar included. Click it again to put the group back."
+            demoProps={{ steps: demo.fullScreenGroups, windows: ['A', 'B', 'C'] }}
+          >
+            <ul className="doc-list">
+              <li><b>Every tab fills the screen.</b> Switch tabs as usual. The menu bar stays, and the group keeps clear of the Dock.</li>
+              <li><b>Click the green button again</b>, or move or resize the group, and it goes back to its own size.</li>
+              <li><b>One group per desktop.</b> Fill a group on each desktop and swipe between them with three fingers, like full-screen apps, but with tabs.</li>
+              <li><b>⌥-click the green button</b> for macOS's own full screen, for that window alone. It gets a Space of its own, and its tab waits in the bar, dimmed (click it to go there). When the window leaves full screen, it rejoins the group.</li>
+              <li>A filled group stays filled after a restart.</li>
+              <li>Want the normal green button back? Switch off <b>Green Button Fills Screen</b> in the menu bar.</li>
+            </ul>
+          </DocSection>
+
+          <DocSection
+            id="desktops"
+            kicker="Tab groups"
+            title="Move a group to another desktop"
+            intro="A tab group lives on one desktop (Space). Drag its tab bar to another desktop in Mission Control, and the whole group follows."
+            demoProps={{ steps: demo.moveDesktop, windows: ['A', 'B', 'C'] }}
+            steps={[
+              <>Open Mission Control: swipe up with three fingers, or press F3.</>,
+              <>Drag the group's tab bar (the thin strip among the windows) onto another desktop in the row at the top.</>,
+              <>Let go. Paneful drags the group's other windows onto the same desktop, one after another, and a pop-up says <b>Tab group moved to Desktop 2</b>. Same tabs, same order, same visible tab.</>,
+            ]}
+          >
+            <ul className="doc-list">
+              <li><b>Or drag just one of its windows</b> to another desktop. The rest of the group follows it.</li>
+              <li><b>It works with every app</b>, including apps that draw their own title bar.</li>
+              <li><b>It takes about a second per window.</b> You'll see the pointer do it. macOS doesn't let apps move other apps' windows between desktops, and Mission Control is the one place that can, so Paneful uses it. Moving the mouse meanwhile is fine; a click or a key press stops it.</li>
+              <li><b>A window that couldn't come along</b> (say, it's in macOS full screen) keeps a dimmed tab. Click it, and Paneful fetches the window through Mission Control.</li>
+              <li><b>Groups remember their desktop.</b> After a restart, a group that opens on another desktop is put back on its own. <b>Remembered Groups</b> in the menu bar shows which desktop each group is on.</li>
+              <li>Groups move between the desktops of one display. To move one to another display, drag its window there.</li>
+              <li>Don't want it? Switch off <b>Move Whole Group Between Desktops</b> in the menu bar. A window you move then leaves the group's bar, and its tab is dimmed until it's back.</li>
+            </ul>
+          </DocSection>
+
+          <DocSection
             id="auto-tiling"
             kicker="Auto-tiling"
             title="Auto-tiling"
@@ -456,6 +499,8 @@ export default function DocsApp() {
                 <tr><td>Drag onto Title Bar to Tab</td><td>Make tab groups by dropping one window onto another</td></tr>
                 <tr><td>Auto-tab Remembered Windows</td><td>Let remembered windows rejoin their groups by themselves</td></tr>
                 <tr><td>Close Button Minimizes Tabs</td><td>In a tab group, the red button sends a window to the Dock instead of closing it. On by default (<a href="#close-button">more</a>)</td></tr>
+                <tr><td>Green Button Fills Screen</td><td>In a tab group, the green button makes the whole group fill the screen. On by default (<a href="#full-screen">more</a>)</td></tr>
+                <tr><td>Move Whole Group Between Desktops</td><td>Dragging a group's tab bar, or one of its windows, to another desktop takes the whole group there. On by default (<a href="#desktops">more</a>)</td></tr>
                 <tr><td>Auto-tile New Windows</td><td>Arrange new windows into tiles. Off by default (<a href="#auto-tiling">more</a>)</td></tr>
                 <tr><td>Auto-tab New Windows</td><td>Tab each new window with the window you were using. Off by default (<a href="#auto-tab-new">more</a>)</td></tr>
                 <tr><td>Saved Layouts ▸</td><td>Restore a saved layout, save the current one under a number, or forget one (<a href="#saved-layouts">more</a>)</td></tr>

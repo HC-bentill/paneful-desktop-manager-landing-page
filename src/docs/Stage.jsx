@@ -120,13 +120,15 @@ function TabBar({ t }) {
             {t.items.map((id) => {
               // t.drag = { id, dx, out }: the tab being dragged is lifted, shifted sideways by dx (% of its
               // width), and dips and fades while it is pulled out of the bar. t.hover = id outlines a tab that
-              // something is held over.
+              // something is held over. t.away = [ids]: dimmed tabs whose windows are elsewhere (another
+              // desktop, or macOS full screen).
               const drag = t.drag?.id === id ? t.drag : null
+              const away = t.away?.includes(id)
               return (
                 <motion.div
                   key={id}
                   layout
-                  className={`dtab ${t.active === id ? 'is-active' : ''} ${drag ? 'is-lifted' : ''} ${t.hover === id ? 'is-hover' : ''}`}
+                  className={`dtab ${t.active === id ? 'is-active' : ''} ${drag ? 'is-lifted' : ''} ${t.hover === id ? 'is-hover' : ''} ${away ? 'is-away' : ''}`}
                   initial={{ opacity: 0, scale: 0.6 }}
                   animate={{ opacity: drag?.out ? 0.45 : 1, scale: 1, x: drag?.dx ?? '0%', y: drag?.out ? '45%' : '0%' }}
                   exit={{ opacity: 0, scale: 0.6 }}
@@ -138,6 +140,53 @@ function TabBar({ t }) {
               )
             })}
           </AnimatePresence>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+/**
+ * Mission Control's row of desktops: { items: [{ label, x, y, w, h, on, hl, mini }] }. Each desktop is a small
+ * picture at the given rect (% of the desktop area) with its name below. `on` marks the desktop you're on, `hl`
+ * highlights it as a drop target, and `mini` lists what's on it (app ids, or 'bar' for a tab bar), drawn as
+ * tiny windows that pop in as they arrive.
+ */
+function SpacesRow({ s }) {
+  return (
+    <AnimatePresence>
+      {s && (
+        <motion.div
+          className="dspaces"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.45, ease }}
+        >
+          {s.items.map((sp) => (
+            <div
+              key={sp.label}
+              className={`dspace ${sp.on ? 'is-on' : ''} ${sp.hl ? 'is-drop' : ''}`}
+              style={{ left: `${sp.x}%`, top: `${sp.y}%`, width: `${sp.w}%`, height: `${sp.h}%` }}
+            >
+              <div className="dspace-pic">
+                <AnimatePresence>
+                  {(sp.mini ?? []).map((id, n) => (
+                    <motion.i
+                      key={id}
+                      className={id === 'bar' ? 'is-bar' : ''}
+                      style={id === 'bar' ? undefined : { background: APPS[id].tint, left: `${16 + n * 7}%`, top: `${26 + n * 6}%` }}
+                      initial={{ opacity: 0, scale: 0.4 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.35, ease }}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+              <span>{sp.label}</span>
+            </div>
+          ))}
         </motion.div>
       )}
     </AnimatePresence>
@@ -285,6 +334,20 @@ export function Stage({ steps, windows = ['A', 'B'], dock = false, label }) {
           </span>
         </div>
         <div className="stage-desk">
+          <AnimatePresence>
+            {step.mc && (
+              <motion.div
+                key="mc"
+                className="dmc"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.45 }}
+                aria-hidden="true"
+              />
+            )}
+          </AnimatePresence>
+          <SpacesRow s={step.spaces} />
           {windows.map((id) => (
             <Window key={id} id={id} f={step.win?.[id]} active={activeId === id} />
           ))}

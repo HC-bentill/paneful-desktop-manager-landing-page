@@ -365,6 +365,89 @@ export const savedLayouts = [
   },
 ]
 
+
+/* 9c — Full-screen tab groups -------------------------------------------- */
+// The green button sits about 5.35% from a window's left edge and 4% below its top.
+const GF = { x: 20, y: 24, w: 60, h: 62 }
+const FG = { x: 0.5, y: 9, w: 99, h: 89.5 }
+const green = (f) => ({ x: f.x + 5.35, y: f.y + 4 })
+const stackedIn = (frame, active, away = []) => ({
+  win: Object.fromEntries(['A', 'B', 'C'].map((id) => [id, at(frame, { z: active === id ? 3 : 1 })])),
+  tabs: { ...frame, items: ['A', 'B', 'C'], active, away },
+  active,
+})
+export const fullScreenGroups = [
+  { d: 1500, ...stackedIn(GF, 'A'), cursor: { x: 70, y: 70 }, caption: 'A tab group' },
+  { d: 900, ...stackedIn(GF, 'A'), cursor: green(GF), caption: 'Click the green button on its window' },
+  { d: 450, ...stackedIn(GF, 'A'), cursor: { ...green(GF), down: true, fast: true }, caption: 'Click the green button on its window' },
+  { d: 2000, ...stackedIn(FG, 'A'), cursor: { x: 62, y: 62 }, caption: 'The whole group fills the screen, tab bar on top' },
+  { d: 700, ...stackedIn(FG, 'A'), cursor: { x: 50, y: 4.5 }, caption: 'Switch tabs as usual…' },
+  { d: 1500, ...stackedIn(FG, 'B'), cursor: { x: 50, y: 4.5, down: true, fast: true }, caption: '…and every tab gets the whole screen' },
+  { d: 900, ...stackedIn(FG, 'B'), cursor: green(FG), caption: 'Click the green button again…' },
+  { d: 1800, ...stackedIn(GF, 'B'), cursor: { x: 34, y: 44 }, caption: '…and the group goes back where it was' },
+  { d: 900, ...stackedIn(GF, 'B'), cursor: green(GF), keys: ['⌥'], caption: '⌥-click it for macOS full screen instead' },
+  {
+    d: 2600, win: { A: at(GF, { z: 3 }), B: { x: 0, y: -6, w: 100, h: 106, z: 8, o: 0 }, C: at(GF, { z: 1 }) },
+    tabs: { ...GF, items: ['A', 'B', 'C'], active: 'A', away: ['B'] }, active: 'A',
+    cursor: { ...green(GF), down: true, fast: true }, keys: ['⌥'],
+    caption: 'That window gets a Space of its own. Its tab waits, dimmed',
+  },
+  { d: 2200, ...stackedIn(GF, 'B'), cursor: { x: 70, y: 70 }, caption: 'When it leaves full screen, it rejoins the group' },
+]
+
+/* 9d — Move a group to another desktop ----------------------------------- */
+// Mission Control: the desktops row on top (Desktop 2's picture is centred at about 60, 10), the windows'
+// pictures below, and the tab bar as a thin picture of its own. Paneful carries the visible tab last.
+const GM = { x: 16, y: 18, w: 68, h: 70 }
+const D1 = { label: 'Desktop 1', x: 31.5, y: 3, w: 17, h: 17 }
+const D2 = { label: 'Desktop 2', x: 51.5, y: 3, w: 17, h: 17 }
+const D2_AT = { x: 60, y: 10 }
+const PICS = { A: { x: 5, y: 36, w: 28, h: 32 }, B: { x: 36, y: 36, w: 28, h: 32 }, C: { x: 67, y: 36, w: 28, h: 32 } }
+const BAR_PIC = { x: 30, y: 82, w: 40 }
+const BAR_AT = { x: 50, y: 77.5 }
+const INTO = { x: 55, y: 6, w: 10, h: 8, z: 9 }
+const centre = (f) => ({ x: f.x + f.w / 2, y: f.y + f.h / 2 })
+const onDesktop = (n) => ({ x: 50, y: 92, text: `Desktop ${n}`, tone: 'hint' })
+const BUSY = { x: 50, y: 92, text: 'Paneful is moving the group…', tone: 'hint' }
+const groupOnDesk = { ...stackedIn(GM, 'A') }
+// moved: windows already on Desktop 2; flying: the one being dragged; bar: the bar's picture (null: it's on Desktop 2).
+const mcScene = ({ moved = [], flying = null, bar = BAR_PIC, hl = false } = {}) => ({
+  mc: true,
+  spaces: {
+    items: [
+      { ...D1, on: true, mini: ['A', 'B', 'C'].filter((id) => !moved.includes(id)) },
+      { ...D2, hl, mini: [...(bar ? [] : ['bar']), ...moved] },
+    ],
+  },
+  win: Object.fromEntries(['A', 'B', 'C'].map((id) => [id,
+    moved.includes(id) ? { ...INTO, o: 0 } : id === flying ? INTO : at(PICS[id], { z: 2 })])),
+  tabs: bar ? { ...bar, items: ['A', 'B', 'C'], active: 'A' } : null,
+  active: null,
+})
+const CARRY = 'Paneful drags each of the other windows over for you'
+const carry = (id, before) => [
+  { d: 600, ...mcScene({ bar: null, moved: before }), cursor: { ...centre(PICS[id]), down: true, fast: true }, badge: BUSY, caption: CARRY },
+  { d: 700, ...mcScene({ bar: null, moved: before, flying: id, hl: true }), cursor: { ...D2_AT, down: true }, badge: BUSY, caption: CARRY },
+  { d: 350, ...mcScene({ bar: null, moved: [...before, id] }), cursor: { ...D2_AT, fast: true }, badge: BUSY, caption: CARRY },
+]
+export const moveDesktop = [
+  { d: 1700, ...groupOnDesk, badge: onDesktop(1), caption: 'A tab group on Desktop 1' },
+  { d: 1800, ...mcScene(), keys: ['F3'], caption: 'Open Mission Control: swipe up with three fingers, or press F3' },
+  { d: 800, ...mcScene(), cursor: BAR_AT, caption: "Grab the group's tab bar" },
+  { d: 450, ...mcScene(), cursor: { ...BAR_AT, down: true, fast: true }, caption: "Grab the group's tab bar" },
+  { d: 1500, ...mcScene({ bar: { x: 53, y: 14, w: 14 }, hl: true }), cursor: { ...D2_AT, down: true }, caption: 'Drag it onto Desktop 2' },
+  { d: 1100, ...mcScene({ bar: null }), cursor: D2_AT, caption: 'Let go…' },
+  ...carry('B', []),
+  ...carry('C', ['B']),
+  ...carry('A', ['B', 'C']),
+  {
+    d: 2300, ...mcScene({ bar: null, moved: ['B', 'C', 'A'] }), cursor: D2_AT,
+    toast: { title: 'Tab group moved to Desktop 2', detail: 'Browser + Team chat + Code editor' }, caption: 'The whole group is on Desktop 2',
+  },
+  { d: 600, ...mcScene({ bar: null, moved: ['B', 'C', 'A'] }), cursor: { ...D2_AT, down: true, fast: true }, caption: 'Click Desktop 2 to go there' },
+  { d: 2800, ...groupOnDesk, badge: onDesktop(2), caption: 'Same tabs, same order, same visible tab' },
+]
+
 /* 10 — Menu bar ---------------------------------------------------------- */
 const mWin = { A: { x: 6, y: 18, w: 46, h: 62, z: 1 } }
 export const menuBar = [

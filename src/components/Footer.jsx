@@ -3,7 +3,7 @@ import { Logo, GITHUB_URL, Reveal, BASE, DOCS_URL } from './shared.jsx'
 const cols = [
   { title: 'Product', links: [['Features', `${BASE}#features`], ['How it works', `${BASE}#how`], ['Tab memory', `${BASE}#memory`], ['Download', `${BASE}#download`]] },
   { title: 'Open source', links: [['GitHub', GITHUB_URL], ['Releases', `${GITHUB_URL}/releases`], ['Issues', `${GITHUB_URL}/issues`], ['MIT License', `${GITHUB_URL}/blob/main/LICENSE`]] },
-  { title: 'Docs', links: [['Getting started', `${DOCS_URL}#getting-started`], ['Tab groups', `${DOCS_URL}#tab-groups`], ['Auto-tiling', `${DOCS_URL}#auto-tiling`], ['Saved layouts', `${DOCS_URL}#saved-layouts`], ['Shortcuts', `${DOCS_URL}#shortcuts`], ['FAQ', `${DOCS_URL}#troubleshooting`]] },
+  { title: 'Docs', links: [['Getting started', `${DOCS_URL}#getting-started`], ['Tab groups', `${DOCS_URL}#tab-groups`], ['Desktops', `${DOCS_URL}#desktops`], ['Auto-tiling', `${DOCS_URL}#auto-tiling`], ['Saved layouts', `${DOCS_URL}#saved-layouts`], ['Shortcuts', `${DOCS_URL}#shortcuts`], ['FAQ', `${DOCS_URL}#troubleshooting`]] },
 ]
 
 export default function Footer() {

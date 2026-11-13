@@ -18,7 +18,9 @@ Each demo in `src/docs/demos.js` is a list of steps, and each step is a full sna
 (window frames in %, cursor, preview, tabs, keys, caption) plus how long to hold it. Optional extras: `ph: true` on a
 frame draws it as an auto-tiling placeholder (dark tile with the app's icon and name), `hl: true` highlights it as a
 drop target, `tabs.hover` outlines a tab, `file: { x, y, name, lifted }` draws a dragged file, and
-`toast: { title, detail }` shows Paneful's confirmation pop-up (as for saved layouts). The stage loops
+`toast: { title, detail }` shows Paneful's confirmation pop-up (as for saved layouts), `tabs.away: [ids]` dims tabs
+whose windows are elsewhere, and `mc: true` plus `spaces: { items: [{ label, x, y, w, h, on, hl, mini }] }` draws
+Mission Control (dimmed wallpaper and the row of desktops, each with tiny windows for what's on it). The stage loops
 through the steps while it's on screen, and framer-motion tweens between them. To document a new
 feature, add a step list to `demos.js` and a `<DocSection demoProps={{ steps }} />` in `DocsApp.jsx`.
 
